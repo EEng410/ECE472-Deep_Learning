@@ -1,0 +1,13 @@
+learning:
+  step_size: 0.005
+  batch_size: 200
+  num_iters: 3000
+  decay_rate: 0.999
+data:
+  num_samples: 500
+  noise_stddev: 0.5
+display:
+  refresh_rate: 10
+mlp:
+  num_hidden_layers: 6
+  hidden_layer_width: 30
