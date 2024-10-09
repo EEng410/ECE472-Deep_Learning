@@ -2,6 +2,7 @@
 from typing import Any
 import tensorflow as tf
 from tensorflow.keras import layers
+import pickle
 
 class Linear(tf.Module):
     def __init__(self, num_inputs, num_outputs, bias=True):
@@ -123,7 +124,7 @@ class ResidualBlock(tf.Module):
         self.resample = True if in_channels != out_channels or stride > 1 else False
         if self.resample:
             self.resampler = Conv2d(1, in_channels, out_channels, input_size, 0)
-        
+        self.awgn = awgn
     def __call__(self, x, inference = False):
         
         if self.resample:
@@ -134,6 +135,10 @@ class ResidualBlock(tf.Module):
             x = self.residual_activation(x)
             x = self.conv_layers[i](x, inference=inference)
         output = carry_out + x
+        if inference == False and self.awgn == True:
+            rng = tf.random.get_global_generator()
+            awgn_vec = rng.normal(shape = output.shape, stddev = 0.1)
+            output = output+awgn_vec
         return output
 
 
@@ -169,8 +174,8 @@ class Classifier(tf.Module):
         self.pooling_layer = AvgPooling(pooling_factor, layer_depths[-1], layer_depths[-1])
     def __call__(self, x, inference = False):
         # conv_layers
-        # if inference == False:
-            # x = self.data_augmentation_layer(x)
+        if inference == False:
+            x = self.data_augmentation_layer(x)
         conv_output = tf.reshape(x, [x.shape[0], x.shape[1], x.shape[2], self.input_depth])
         for i in range(self.num_residual_layers):
             # breakpoint()
@@ -200,9 +205,22 @@ def unpickle(file):
     return dict
 
 def grad_update(step_size, variables, grads):
-    for var, grad in zip(variables, grads):
+    for var, grad in zip(variables, grads):  
         var.assign_sub(step_size * grad)
 
+def save_model(model, name):
+    with open(name, "wb") as file: # file is a variable for storing the newly created file, it can be anything.
+        pickle.dump(model, file) # Dump function is used to write the object into the created file in byte format.
+
+def accuracy_batch(truth, set, classifier):
+    preds_vec = np.zeros(truth.shape)
+    for i in range(int(truth.shape[0]/100)):
+        preds_vec[i*100 : (i+1)*100, :] = classifier(set[i*100 : (i+1)*100, :, :, :], inference = True)
+    preds = tf.argmax(preds_vec, axis = 1)
+    truth = tf.argmax(truth, axis = 1)
+    accuracy = tf.math.count_nonzero(tf.equal(truth,preds)) / preds.shape[0] * 100
+    return accuracy
+        
 
 if __name__ == "__main__":
     import argparse
@@ -215,7 +233,7 @@ if __name__ == "__main__":
 
     from tqdm import trange
     # from sklearn.preprocessing import OneHotEncoder
-    # from sklearn.model_selection import train_test_split
+    from sklearn.model_selection import train_test_split
 
     parser = argparse.ArgumentParser(
         prog="Linear",
@@ -244,19 +262,28 @@ if __name__ == "__main__":
     labels = np.concatenate((data_1[b'labels'], data_2[b'labels'], data_3[b'labels'], data_4[b'labels'], data_5[b'labels']), axis = 0)
 
     images = np.reshape(images, (50000, 3, 32, 32)).swapaxes(1, 3).swapaxes(1, 2).astype("float32")
-    labels = tf.one_hot(labels, 10)
+    # labels = tf.one_hot(labels, 10)
 
     data_test = unpickle("./cifar-10-batches-py/test_batch")
 
+    images_train, images_val, labels_train, labels_val = train_test_split(images, labels, test_size=0.3, random_state=42)
+    
+    labels_train = tf.one_hot(labels_train, 10)
+    labels_val = tf.one_hot(labels_val, 10)
+    
     images_test = data_test[b'data']
     labels_test = data_test[b'labels']
 
     images_test = np.reshape(images_test, (10000, 3, 32, 32)).swapaxes(1, 3).swapaxes(1, 2).astype("float32")
     labels_test = tf.one_hot(labels_test, 10)
+
+
     # breakpoint()
 
+    # classifier = unpickle("restart.pkl")
+    # breakpoint()
     # def __init__(self, input_size, input_depth, layer_depths, layer_kernel_sizes, num_classes, num_residual_layers, strides = None, G = 32, residual_activation = tf.nn.relu, stride = 1, dropout_prob = 0.2, conv_activation = tf.identity, awgn = True, dropout = True, layers = 2):
-    classifier = Classifier(1024, 3, [16, 32, 32, 64], [[3, 3], [3, 3], [3, 3], [3, 3]], 10, 4, dropout_prob= 0.1)
+    classifier = Classifier(1024, 3, [16, 32, 32, 64, 64], [[3, 3], [3, 3], [3, 3], [3, 3], [2, 2]], 10, 4, dropout_prob= 0.2)
 
     # breakpoint()
     num_iters = config["learning"]["num_iters"]
@@ -284,8 +311,8 @@ if __name__ == "__main__":
         )
         
         with tf.GradientTape() as tape:
-            x_batch = tf.gather(images, batch_indices, axis = 0)
-            y_batch = tf.gather(labels, batch_indices, axis = 0)
+            x_batch = tf.gather(images_train, batch_indices, axis = 0)
+            y_batch = tf.gather(labels_train, batch_indices, axis = 0)
             # breakpoint()
 
             y_hat = classifier(x_batch)
@@ -329,12 +356,15 @@ if __name__ == "__main__":
     # breakpoint()
 
     # Accuracy calculation (one-hot labels, input set, classifier)
-    def accuracy(truth, set, classifier):
-        preds = tf.argmax(classifier(set, inference = True), axis = 1)
-        truth = tf.argmax(truth, axis = 1)
-        accuracy = tf.math.count_nonzero(tf.equal(truth,preds)) / preds.shape[0] * 100
-        return accuracy
+    # The network is too large for the accuracy computation to be done all at once. We'll do it in batches
+    # def accuracy(truth, set, classifier):
+    #     preds = tf.argmax(classifier(set, inference = True), axis = 1)
+    #     truth = tf.argmax(truth, axis = 1)
+    #     accuracy = tf.math.count_nonzero(tf.equal(truth,preds)) / preds.shape[0] * 100
+    #     return accuracy
     breakpoint()
+    
+
     # print(accuracy(labels_test[0:4999], images_test[0:4999, :, :, :], classifier))
     # print(accuracy(labels_test[5000:9999], images_test[5000:9999, :, :, :], classifier))
 
