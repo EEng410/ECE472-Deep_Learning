@@ -1,14 +1,14 @@
 learning:
-  step_size: 0.001
-  batch_size: 64
-  num_iters: 5000
+  step_size: 0.00005
+  batch_size: 128
+  num_iters: 70000
   decay_rate: 0.999
-  weight_decay: 0.0004
+  weight_decay: 0.00001
 data:
   num_samples: 35000
   noise_stddev: 0.5
 display:
-  refresh_rate: 10
+  refresh_rate: 1
 mlp:
   num_hidden_layers: 6
   hidden_layer_width: 30

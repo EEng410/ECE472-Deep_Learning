@@ -91,9 +91,10 @@ class Conv2d(tf.Module):
         z = self.activation(z)
         # # apply dropout except for at inference time
         if inference == False:
-            rng = tf.random.get_global_generator()
-            dropout_vec = tf.cast(tf.where(rng.uniform(shape = z.shape, minval = 0, maxval = 1) < (1-self.dropout_prob), 1, 0), tf.float32)
-            z = tf.math.multiply(z, dropout_vec) / (1-self.dropout_prob)
+            # rng = tf.random.get_global_generator()
+            # dropout_vec = tf.cast(tf.where(rng.uniform(shape = z.shape, minval = 0, maxval = 1) < (1-self.dropout_prob), 1, 0), tf.float32)
+            # z = tf.math.multiply(z, dropout_vec) / (1-self.dropout_prob)
+            z = tf.nn.dropout(z, self.dropout_prob)
         return z
 
 
@@ -114,10 +115,11 @@ class AvgPooling(tf.Module):
         return z
 
 class ResidualBlock(tf.Module):
-    def __init__(self, k, in_channels, out_channels, G, input_size, residual_activation = tf.nn.relu, stride = 1, dropout_prob = 0.2, conv_activation = tf.nn.relu, awgn = True, dropout = True, num_layers = 2):
+    def __init__(self, k, in_channels, out_channels, G, input_size, num_layers, residual_activation = tf.nn.relu, stride = 1, dropout_prob = 0.2, conv_activation = tf.nn.relu, awgn = True, dropout = True):
         #k, in_channels, out_channels should be lists of integers
         self.residual_activation = residual_activation
         self.layers = num_layers
+
         self.group_norm_layers = [GroupNorm(G, out_channels) for i in range(num_layers)]
         self.conv_layers = [Conv2d(k[i], in_channels, out_channels, input_size, stride = stride, dropout_prob = dropout_prob, activation = conv_activation) for i in range(num_layers)]
         # In case we encounter a size mismatch between layers (we will)
@@ -131,19 +133,19 @@ class ResidualBlock(tf.Module):
             x = self.resampler(x)
         carry_out = x
         for i in range(self.layers):
-            x = self.group_norm_layers[i](x)
-            x = self.residual_activation(x)
             x = self.conv_layers[i](x, inference=inference)
+            x = self.group_norm_layers[i](x)
+            x = self.residual_activation(x)           
         output = carry_out + x
         if inference == False and self.awgn == True:
             rng = tf.random.get_global_generator()
-            awgn_vec = rng.normal(shape = output.shape, stddev = 0.1)
+            awgn_vec = rng.normal(shape = output.shape, stddev = 0.05)
             output = output+awgn_vec
         return output
 
 
 class Classifier(tf.Module):
-    def __init__(self, input_size, input_depth, layer_depths, layer_kernel_sizes, num_classes, num_residual_layers, strides = None, G = 4, residual_activation = tf.nn.relu, stride = 1, dropout_prob = 0.2, conv_activation = tf.nn.relu, awgn = True, dropout = True, num_layers = 2, pooling_factor = 8):
+    def __init__(self, input_size, input_depth, layer_depths, layer_kernel_sizes, num_classes, num_residual_layers, strides = None, G = 4, residual_activation = tf.nn.relu, stride = 1, dropout_prob = 0.2, conv_activation = tf.nn.relu, awgn = True, dropout = True, num_layers = 1, pooling_factor = 8):
         if strides is None: strides = tf.ones(shape = [num_residual_layers])
 
         #should probably throw an error if num_conv_layers doesn't match length of layer_depths or layer_kernel_sizes
@@ -162,7 +164,7 @@ class Classifier(tf.Module):
             if i == 0:
                 self.residual_layers.append(Conv2d(layer_kernel_sizes[i][0], input_depth, layer_depths[i], input_size, dropout_prob=dropout_prob, activation=conv_activation))
             else:
-                self.residual_layers.append(ResidualBlock(layer_kernel_sizes[i], layer_depths[i-1], layer_depths[i], G, input_size, residual_activation, stride, dropout_prob, conv_activation, awgn, dropout, num_layers))
+                self.residual_layers.append(ResidualBlock(layer_kernel_sizes[i], layer_depths[i-1], layer_depths[i], G, input_size, num_layers, residual_activation, stride, dropout_prob, conv_activation, awgn, dropout))
         self.output_layer = Linear(input_size*layer_depths[-1]/(pooling_factor**2), self.num_classes)
         # self.output_layer = Linear(num_classes)
 
@@ -280,10 +282,12 @@ if __name__ == "__main__":
 
     # breakpoint()
 
-    # classifier = unpickle("restart.pkl")
+    # classifier = unpickle("restarting.pkl")
+
+
     # breakpoint()
     # def __init__(self, input_size, input_depth, layer_depths, layer_kernel_sizes, num_classes, num_residual_layers, strides = None, G = 32, residual_activation = tf.nn.relu, stride = 1, dropout_prob = 0.2, conv_activation = tf.identity, awgn = True, dropout = True, layers = 2):
-    classifier = Classifier(1024, 3, [16, 32, 32, 64, 64], [[3, 3], [3, 3], [3, 3], [3, 3], [2, 2]], 10, 4, dropout_prob= 0.2)
+    classifier = Classifier(1024, 3, [32, 64, 128, 256], [[7, 7], [3, 3], [3, 3], [3, 3]], 10, 4, dropout_prob= 0.1)
 
     # breakpoint()
     num_iters = config["learning"]["num_iters"]
@@ -295,16 +299,16 @@ if __name__ == "__main__":
 
     bar = trange(num_iters)
     cce = tf.keras.losses.CategoricalCrossentropy()
-    beta_1 = 0.9
-    beta_2 = 0.999
+    # beta_1 = 0.9
+    # beta_2 = 0.999
     # Initialize 1st and 2nd moment vectors
-    m = [tf.zeros(classifier.trainable_variables[i].shape, dtype = 'float32') for i in range(len(classifier.trainable_variables))]
-    v = [tf.zeros(classifier.trainable_variables[i].shape, dtype = 'float32') for i in range(len(classifier.trainable_variables))]
-    step_size_reduction = True
-    step_size_reduction_2 = True
+    # m = [tf.zeros(classifier.trainable_variables[i].shape, dtype = 'float32') for i in range(len(classifier.trainable_variables))]
+    # v = [tf.zeros(classifier.trainable_variables[i].shape, dtype = 'float32') for i in range(len(classifier.trainable_variables))]
+    # step_size_reduction = True
+    # step_size_reduction_2 = True
     loss_vec = np.zeros((num_iters, 1))
 
-    adam_W = tf.keras.optimizers.AdamW()
+    adam = tf.keras.optimizers.AdamW(learning_rate = step_size, weight_decay = gamma)
     for i in bar:
         batch_indices = rng.uniform(
             shape=[batch_size], maxval=num_samples, dtype=tf.int32
@@ -319,32 +323,9 @@ if __name__ == "__main__":
             loss = cce(y_batch, y_hat)
             for var in classifier.trainable_variables:
                 loss += gamma * tf.math.reduce_sum(tf.multiply(tf.reshape(var, [1, -1]), tf.reshape(var, [1, -1])))
-        # if step_size_reduction and loss < 3.0:
-        #     step_size = step_size/5
-        #     step_size_reduction = False
-        # if step_size_reduction_2 and loss < 1.0:
-        #     step_size = step_size/2
-        #     step_size_reduction_2 = False
         grads = tape.gradient(loss, classifier.trainable_variables)
         # breakpoint()
-        #Implementing Adam
-        
-        # w = gamma/step_size
-        # breakpoint()
-        # m = tuple(map(sum, zip(tuple([(beta_1)*m_i for m_i in m]), tuple([(1-beta_1)*grad for grad in grads]))))
-        # grads_sq = [tf.math.multiply(grad, grad) for grad in grads]
-        # v = tuple(map(sum, zip(tuple([(beta_2)*v_i for v_i in v]), tuple([(1-beta_2)*grad for grad in grads_sq]))))
-        
-        # m_hat = tuple([1/(1-beta_1**(i+1))*m_i for m_i in m])
-        # v_hat = tuple([1/(1-beta_2**(i+1))*v_i for v_i in v])
-
-        # # Implement AdamW
-        # grad_new = [tf.math.divide(aItem, tf.math.sqrt(bItem)+(1e-8)) + gamma * cItem for aItem, bItem, cItem in zip(m_hat, v_hat, classifier.trainable_variables)]
-        # # grad_new = [tf.math.divide(aItem, tf.math.sqrt(bItem)+(1e-8)) for aItem, bItem in zip(m_hat, v_hat)]
-        # # breakpoint()
-        # grad_update(step_size, classifier.trainable_variables, grad_new)
-
-        adam_W.apply(grads, classifier.trainable_variables)
+        adam.apply(grads, classifier.trainable_variables)
 
         if i % refresh_rate == (refresh_rate - 1):
             bar.set_description(
@@ -352,7 +333,7 @@ if __name__ == "__main__":
             )
             bar.refresh()
         loss_vec[i] = loss
-        step_size = step_size * decay_rate
+        # step_size = step_size*decay_rate
     # breakpoint()
 
     # Accuracy calculation (one-hot labels, input set, classifier)
@@ -371,5 +352,5 @@ if __name__ == "__main__":
     plt.figure(figsize=(10, 6))  # Adjust the width and height as desired
 
     plt.plot(loss_vec)
-    plt.show()
+    plt.savefig("pain.pdf")
 
