@@ -42,29 +42,14 @@ class MLP(tf.Module):
         self.dropout_prob = dropout_prob
         rng = tf.random.get_global_generator()
         self.bias = bias
-        # weights were getting too large so I squashed them down by adding hidden_layer_width
-        # stddev = tf.math.sqrt(2 / (hidden_layer_width))
+
 
         self.input_layer = Linear(num_inputs, hidden_layer_width)
 
-        # self.w = tf.Variable(
-        #     rng.normal(shape=[hidden_layer_width, hidden_layer_width, num_hidden_layers-1], stddev=stddev),
-        #     trainable=True,
-        #     name="MLP/w",
-        # )
-        
         self.hidden_layers = [Linear(hidden_layer_width, hidden_layer_width) for i in range(num_hidden_layers)]
-        
+
         self.output_layer = Linear(hidden_layer_width, num_outputs)
 
-        # if self.bias:
-        #     self.b = tf.Variable(
-        #         tf.zeros(
-        #             shape=[1, num_hidden_layers],
-        #         ),
-        #         trainable=True,
-        #         name="MLP/b",
-        #     )
 
     def __call__(self, x, inference = False):
         z = tf.cast(x, 'float32')
@@ -77,13 +62,8 @@ class MLP(tf.Module):
                 z = tf.nn.dropout(z, self.dropout_prob)
 
         p = self.output_activation(self.output_layer(z))
-
-        # if p >= 0.5:
-        #     return 1
-        # if p < 0.5:
-        #     return 0
         return p
-    
+
 
 class Classifier(tf.Module):
     def __init__(self, num_inputs, num_outputs, num_hidden_layers, hidden_layer_width, hidden_activation = tf.nn.leaky_relu, output_activation = tf.nn.softmax, dropout_prob = 0.2, bias=True):
@@ -119,7 +99,7 @@ if __name__ == "__main__":
     from tqdm import trange
     rng = tf.random.get_global_generator()
     rng.reset_from_seed(0x43966E87BD57227011B5B03B58785EC1)
-    num_samples = 120000
+    num_samples = 108000
     num_inputs = 384 # size of embeddings. Consistent because of padding
     num_outputs = 4
     num_iters = 1000
@@ -137,22 +117,35 @@ if __name__ == "__main__":
     cce = tf.keras.losses.CategoricalCrossentropy()
     loss_vec = []
     accuracy_test = 0.00
-    ds = load_dataset("fancyzhx/ag_news")
+    #
+
     transformer = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+
+    # breakpoint()
+    ds = load_dataset("fancyzhx/ag_news")
+    # print('done')
     test_labels = tf.one_hot(ds['test']['label'], 4)
-    # test_embs = transformer.encode(ds['test']['text'])
+    test_embs = transformer.encode(ds['test']['text'])
+
+    train_val = ds['train'].train_test_split(test_size = 0.01)
+
+    train_set = train_val['train']
+
+    val_text = train_val['test']['text']
+    val_labels = tf.one_hot(train_val['test']['label'], 4)
+    val_embs = transformer.encode(val_text)
+
     for i in bar:
-        breakpoint()
         batch_indices = rng.uniform(
             shape=[batch_size], maxval=num_samples, dtype=tf.int32
         )
         ##Embeddings
-        batch = ds['train'].select(batch_indices)
+        batch = train_set.select(batch_indices)
         x_batch = transformer.encode(batch['text'])
         y_batch = tf.one_hot(batch['label'], 4)
         y_batch = tf.cast(y_batch, 'float32')
         with tf.GradientTape() as tape:
-            
+
             y_hat = classifier(x_batch)
             loss =  cce(y_batch, y_hat)
             loss = tf.math.reduce_mean(loss)
@@ -160,8 +153,8 @@ if __name__ == "__main__":
         grads = tape.gradient(loss, classifier.trainable_variables)
 
         optimizer.apply_gradients(zip(grads, classifier.trainable_variables))
-        # if i % 50 == 0:
-            # accuracy_test = accuracy(test_labels, test_embs, classifier)
+        if i % 50 == 0:
+            accuracy_test = accuracy(val_labels, val_embs, classifier)
 
         if i % refresh_rate == (refresh_rate - 1):
             bar.set_description(
@@ -169,3 +162,5 @@ if __name__ == "__main__":
             )
 
             bar.refresh()
+
+    print(accuracy(test_labels, test_embs, classifier))
