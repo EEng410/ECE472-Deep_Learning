@@ -284,16 +284,16 @@ if __name__ == "__main__":
     labels_test = data_test[b'coarse_labels']
 
     images_test = np.reshape(images_test, (10000, 3, 32, 32)).swapaxes(1, 3).swapaxes(1, 2).astype("float32")
-    labels_test = tf.one_hot(labels_test, 10)
+    labels_test = tf.one_hot(labels_test, 100)
 
 
     # breakpoint()
 
-    classifier = unpickle("end.pkl")
+    # classifier = unpickle("end.pkl")
     # breakpoint()
     # breakpoint()
     # def __init__(self, input_size, input_depth, layer_depths, layer_kernel_sizes, num_classes, num_residual_layers, strides = None, G = 32, residual_activation = tf.nn.relu, stride = 1, dropout_prob = 0.2, conv_activation = tf.identity, awgn = True, dropout = True, layers = 2):
-    # classifier = Classifier(1024, 3, [16, 32, 64, 128], [[3, 3], [3, 3], [3, 3], [3, 3]], 100, 4, dropout_prob= 0.2, residual_activation=tf.nn.leaky_relu)
+    classifier = Classifier(1024, 3, [16, 32, 64, 128, 256], [[3, 3], [3, 3], [3, 3], [3, 3], [3, 3]], 100, 5, dropout_prob= 0.2)
 
     # breakpoint()
     num_iters = config["learning"]["num_iters"]

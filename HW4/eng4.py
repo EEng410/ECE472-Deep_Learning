@@ -154,7 +154,7 @@ class Classifier(tf.Module):
             else:
                 self.residual_layers.append(ResidualBlock(layer_kernel_sizes[i], layer_depths[i-1], layer_depths[i], G, input_size, num_layers, residual_activation, stride, dropout_prob, conv_activation, awgn, dropout))
         self.output_layer = Linear(input_size*layer_depths[-1]/(pooling_factor**2), self.num_classes)
-                self.residual_layers.append(ResidualBlock(layer_kernel_sizes[i], layer_depths[i-1], layer_depths[i], G, residual_activation, stride, dropout_prob, conv_activation, awgn, dropout, num_layers))
+        self.residual_layers.append(ResidualBlock(layer_kernel_sizes[i], layer_depths[i-1], layer_depths[i], G, residual_activation, stride, dropout_prob, conv_activation, awgn, dropout, num_layers))
         self.output_layer = Linear(input_size*layer_depths[-1], self.num_classes)
         # self.output_layer = Linear(num_classes)
 
