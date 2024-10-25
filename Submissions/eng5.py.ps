@@ -1,0 +1,817 @@
+%!PS-Adobe-3.0
+%%Title: HW5//eng5.py
+%%For: eeng
+%%Creator: VIM - Vi IMproved 8.2 (2019 Dec 12)
+%%CreationDate: Thu Oct 17 18:30:27 2024
+%%DocumentData: Clean8Bit
+%%Orientation: Portrait
+%%Pages: (atend)
+%%PageOrder: Ascend
+%%BoundingBox: 59 49 564 800
+%%DocumentMedia: A4 595 842 0 () ()
+%%DocumentNeededResources: font Courier
+%%+ font Courier-Bold
+%%+ font Courier-Oblique
+%%+ font Courier-BoldOblique
+%%DocumentSuppliedResources: procset VIM-Prolog 1.4 1
+%%+ encoding VIM-latin1 1.0 0
+%%Requirements: duplex collate color
+%%EndComments
+%%BeginDefaults
+%%PageResources: font Courier
+%%+ font Courier-Bold
+%%+ font Courier-Oblique
+%%+ font Courier-BoldOblique
+%%PageMedia: A4
+%%EndDefaults
+%%BeginProlog
+%%BeginResource: procset VIM-Prolog
+%%BeginDocument: /usr/share/vim/vim82/print/prolog.ps
+%!PS-Adobe-3.0 Resource-ProcSet
+%%Title: VIM-Prolog
+%%Version: 1.4 1
+%%EndComments
+% Editing of this file is NOT RECOMMENDED.  You run a very good risk of causing
+% all PostScript printing from VIM failing if you do.  PostScript is not called
+% a write-only language for nothing!
+/packedarray where not{userdict begin/setpacking/pop load def/currentpacking
+false def end}{pop}ifelse/CP currentpacking def true setpacking
+/bd{bind def}bind def/ld{load def}bd/ed{exch def}bd/d/def ld
+/db{dict begin}bd/cde{currentdict end}bd
+/T true d/F false d
+/SO null d/sv{/SO save d}bd/re{SO restore}bd
+/L2 systemdict/languagelevel 2 copy known{get exec}{pop pop 1}ifelse 2 ge d
+/m/moveto ld/s/show ld /ms{m s}bd /g/setgray ld/r/setrgbcolor ld/sp{showpage}bd
+/gs/gsave ld/gr/grestore ld/cp/currentpoint ld
+/ul{gs UW setlinewidth cp UO add 2 copy newpath m 3 1 roll add exch lineto
+stroke gr}bd
+/bg{gs r cp BO add 4 -2 roll rectfill gr}bd
+/sl{90 rotate 0 exch translate}bd
+L2{
+/sspd{mark exch{setpagedevice}stopped cleartomark}bd
+/nc{1 db/NumCopies ed cde sspd}bd
+/sps{3 db/Orientation ed[3 1 roll]/PageSize ed/ImagingBBox null d cde sspd}bd
+/dt{2 db/Tumble ed/Duplex ed cde sspd}bd
+/c{1 db/Collate ed cde sspd}bd
+}{
+/nc{/#copies ed}bd
+/sps{statusdict/setpage get exec}bd
+/dt{statusdict/settumble 2 copy known{get exec}{pop pop pop}ifelse
+statusdict/setduplexmode 2 copy known{get exec}{pop pop pop}ifelse}bd
+/c{pop}bd
+}ifelse
+/ffs{findfont exch scalefont d}bd/sf{setfont}bd
+/ref{1 db findfont dup maxlength dict/NFD ed{exch dup/FID ne{exch NFD 3 1 roll
+put}{pop pop}ifelse}forall/Encoding findresource dup length 256 eq{NFD/Encoding
+3 -1 roll put}{pop}ifelse NFD dup/FontType get 3 ne{/CharStrings}{/CharProcs}
+ifelse 2 copy known{2 copy get dup maxlength dict copy[/questiondown/space]{2
+copy known{2 copy get 2 index/.notdef 3 -1 roll put pop exit}if pop}forall put
+}{pop pop}ifelse dup NFD/FontName 3 -1 roll put NFD definefont pop end}bd
+CP setpacking
+(\004)cvn{}bd
+% vim:ff=unix:
+%%EOF
+%%EndDocument
+%%EndResource
+%%BeginResource: encoding VIM-latin1
+%%BeginDocument: /usr/share/vim/vim82/print/latin1.ps
+%!PS-Adobe-3.0 Resource-Encoding
+%%Title: VIM-latin1
+%%Version: 1.0 0
+%%EndComments
+/VIM-latin1[
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/space /exclam /quotedbl /numbersign /dollar /percent /ampersand /quotesingle
+/parenleft /parenright /asterisk /plus /comma /minus /period /slash
+/zero /one /two /three /four /five /six /seven
+/eight /nine /colon /semicolon /less /equal /greater /question
+/at /A /B /C /D /E /F /G
+/H /I /J /K /L /M /N /O
+/P /Q /R /S /T /U /V /W
+/X /Y /Z /bracketleft /backslash /bracketright /asciicircum /underscore
+/grave /a /b /c /d /e /f /g
+/h /i /j /k /l /m /n /o
+/p /q /r /s /t /u /v /w
+/x /y /z /braceleft /bar /braceright /asciitilde /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/space /exclamdown /cent /sterling /currency /yen /brokenbar /section
+/dieresis /copyright /ordfeminine /guillemotleft /logicalnot /hyphen /registered /macron
+/degree /plusminus /twosuperior /threesuperior /acute /mu /paragraph /periodcentered
+/cedilla /onesuperior /ordmasculine /guillemotright /onequarter /onehalf /threequarters /questiondown
+/Agrave /Aacute /Acircumflex /Atilde /Adieresis /Aring /AE /Ccedilla
+/Egrave /Eacute /Ecircumflex /Edieresis /Igrave /Iacute /Icircumflex /Idieresis
+/Eth /Ntilde /Ograve /Oacute /Ocircumflex /Otilde /Odieresis /multiply
+/Oslash /Ugrave /Uacute /Ucircumflex /Udieresis /Yacute /Thorn /germandbls
+/agrave /aacute /acircumflex /atilde /adieresis /aring /ae /ccedilla
+/egrave /eacute /ecircumflex /edieresis /igrave /iacute /icircumflex /idieresis
+/eth /ntilde /ograve /oacute /ocircumflex /otilde /odieresis /divide
+/oslash /ugrave /uacute /ucircumflex /udieresis /yacute /thorn /ydieresis]
+/Encoding defineresource pop
+% vim:ff=unix:
+%%EOF
+%%EndDocument
+%%EndResource
+%%EndProlog
+%%BeginSetup
+595 842 0 sps
+1 nc
+T F dt
+T c
+%%IncludeResource: font Courier
+/_F0 /VIM-latin1 /Courier ref
+/F0 10 /_F0 ffs
+%%IncludeResource: font Courier-Bold
+/_F1 /VIM-latin1 /Courier-Bold ref
+/F1 10 /_F1 ffs
+%%IncludeResource: font Courier-Oblique
+/_F2 /VIM-latin1 /Courier-Oblique ref
+/F2 10 /_F2 ffs
+%%IncludeResource: font Courier-BoldOblique
+/_F3 /VIM-latin1 /Courier-BoldOblique ref
+/F3 10 /_F3 ffs
+/UO -1 d
+/UW 0.5 d
+/BO -2.5 d
+%%EndSetup
+%%Page: 1 1
+%%BeginPageSetup
+sv
+0 g
+F0 sf
+%%EndPageSetup
+F1 sf
+(HW5//eng5.py                                                                  Page 1)59.5 792.4 ms
+F0 sf
+0.753 0 0.753 r
+(import)59.5 772.4 ms
+0 g
+( tensorflow )s
+0 0.502 0 r
+(as)s
+0 g
+( tf)s
+0 0.502 0 r
+(class)59.5 752.4 ms
+0 g
+( )s
+0.502 0.502 0 r
+(Linear)s
+0 g
+(\(tf.Module\):)s
+(    )59.5 742.4 ms
+0 0.502 0 r
+(def)s
+0 g
+( )s
+0.502 0.502 0 r
+(__init__)s
+0 g
+(\(self, num_inputs, num_outputs, bias=)s
+0.502 0.502 0 r
+(True)s
+0 g
+(\):)s
+(        rng = tf.random.get_global_generator\(\))59.5 732.4 ms
+(        stddev = tf.math.sqrt\()59.5 712.4 ms
+0 0 0.753 r
+(2)s
+0 g
+( / \(num_inputs + num_outputs\)\))s
+(        self.w = tf.Variable\()59.5 692.4 ms
+(            rng.normal\(shape=[num_inputs, num_outputs], stddev=stddev\),)59.5 682.4 ms
+(            trainable=)59.5 672.4 ms
+0.502 0.502 0 r
+(True)s
+0 g
+(,)s
+(            name=)59.5 662.4 ms
+0 0 0.753 r
+("Linear/w")s
+0 g
+(,)s
+(        \))59.5 652.4 ms
+(        self.bias = bias)59.5 632.4 ms
+(        )59.5 612.4 ms
+0 0.502 0 r
+(if)s
+0 g
+( self.bias:)s
+(            self.b = tf.Variable\()59.5 602.4 ms
+(                tf.zeros\()59.5 592.4 ms
+(                    shape=[)59.5 582.4 ms
+0 0 0.753 r
+(1)s
+0 g
+(, num_outputs],)s
+(                \),)59.5 572.4 ms
+(                trainable=)59.5 562.4 ms
+0.502 0.502 0 r
+(True)s
+0 g
+(,)s
+(                name=)59.5 552.4 ms
+0 0 0.753 r
+("Linear/b")s
+0 g
+(,)s
+(            \))59.5 542.4 ms
+(    )59.5 522.4 ms
+0 0.502 0 r
+(def)s
+0 g
+( )s
+0.502 0.502 0 r
+(__call__)s
+0 g
+(\(self, x\):)s
+(        z = x @ self.w)59.5 512.4 ms
+(        )59.5 492.4 ms
+0 0.502 0 r
+(if)s
+0 g
+( self.bias:)s
+(            z += self.b)59.5 482.4 ms
+(        )59.5 462.4 ms
+0 0.502 0 r
+(return)s
+0 g
+( z)s
+0 0.502 0 r
+(class)59.5 442.4 ms
+0 g
+( )s
+0.502 0.502 0 r
+(MLP)s
+0 g
+(\(tf.Module\):)s
+(    )59.5 432.4 ms
+0 0.502 0 r
+(def)s
+0 g
+( )s
+0.502 0.502 0 r
+(__init__)s
+0 g
+(\(self, num_inputs, num_outputs, num_hidden_layers, hidden_layer_widt)s
+(h, hidden_activation = tf.identity, output_activation = tf.identity, bias=)59.5 422.4 ms
+0.502 0.502 0 r
+(True)s
+0 g
+(, drop)s
+(out_prob = )59.5 412.4 ms
+0 0 0.753 r
+(0.2)s
+0 g
+(\):)s
+(        self.num_inputs = num_inputs)59.5 402.4 ms
+(        self.num_outputs = num_outputs)59.5 392.4 ms
+(        self.num_hidden_layers = num_hidden_layers)59.5 382.4 ms
+(        self.hidden_layer_width = hidden_layer_width)59.5 372.4 ms
+(        self.hidden_activation = hidden_activation)59.5 362.4 ms
+(        self.output_activation = output_activation)59.5 352.4 ms
+(        self.dropout_prob = dropout_prob)59.5 342.4 ms
+(        rng = tf.random.get_global_generator\(\))59.5 332.4 ms
+(        self.bias = bias)59.5 322.4 ms
+(        self.input_layer = Linear\(num_inputs, hidden_layer_width\))59.5 292.4 ms
+(        self.hidden_layers = [Linear\(hidden_layer_width, hidden_layer_width\) )59.5 272.4 ms
+0 0.502 0 r
+(for)s
+0 g
+( i )s
+0 0.502 0 r
+(i)s
+(n)59.5 262.4 ms
+0 g
+( )s
+0.502 0.502 0 r
+(range)s
+0 g
+(\(num_hidden_layers\)])s
+(        self.output_layer = Linear\(hidden_layer_width, num_outputs\))59.5 242.4 ms
+(    )59.5 212.4 ms
+0 0.502 0 r
+(def)s
+0 g
+( )s
+0.502 0.502 0 r
+(__call__)s
+0 g
+(\(self, x, inference = )s
+0.502 0.502 0 r
+(False)s
+0 g
+(\):)s
+(        z = tf.cast\(x, )59.5 202.4 ms
+0 0 0.753 r
+('float32')s
+0 g
+(\))s
+(        z = tf.transpose\(z\))59.5 192.4 ms
+(        z = self.input_layer\(z\))59.5 182.4 ms
+(        )59.5 162.4 ms
+0 0.502 0 r
+(for)s
+0 g
+( layer )s
+0 0.502 0 r
+(in)s
+0 g
+( )s
+0.502 0.502 0 r
+(range)s
+0 g
+(\(self.num_hidden_layers\):)s
+(            z = self.hidden_activation\(self.hidden_layers[layer]\(z\)\))59.5 152.4 ms
+(            )59.5 142.4 ms
+0 0.502 0 r
+(if)s
+0 g
+( inference == )s
+0.502 0.502 0 r
+(False)s
+0 g
+(:)s
+(                z = tf.nn.dropout\(z, self.dropout_prob\))59.5 132.4 ms
+(        p = self.output_activation\(self.output_layer\(z\)\))59.5 112.4 ms
+(        )59.5 102.4 ms
+0 0.502 0 r
+(return)s
+0 g
+( p)s
+0 0.502 0 r
+(class)59.5 72.4 ms
+0 g
+( )s
+0.502 0.502 0 r
+(Classifier)s
+0 g
+(\(tf.Module\):)s
+(    )59.5 62.4 ms
+0 0.502 0 r
+(def)s
+0 g
+( )s
+0.502 0.502 0 r
+(__init__)s
+0 g
+(\(self, num_inputs, num_outputs, num_hidden_layers, hidden_layer_widt)s
+(h, hidden_activation = tf.nn.leaky_relu, output_activation = tf.nn.softmax, dropout_)59.5 52.4 ms
+re sp
+%%PageTrailer
+%%Page: 2 2
+%%BeginPageSetup
+sv
+0 g
+F0 sf
+%%EndPageSetup
+F1 sf
+(HW5//eng5.py                                                                  Page 2)59.5 792.4 ms
+F0 sf
+(prob = )59.5 772.4 ms
+0 0 0.753 r
+(0.2)s
+0 g
+(, bias=)s
+0.502 0.502 0 r
+(True)s
+0 g
+(\):)s
+(        self.mlp = MLP\(num_inputs, num_outputs, num_hidden_layers, hidden_layer_widt)59.5 762.4 ms
+(h, hidden_activation, output_activation, bias = bias\))59.5 752.4 ms
+(        self.dropout_prob = dropout_prob)59.5 742.4 ms
+(    )59.5 732.4 ms
+0 0.502 0 r
+(def)s
+0 g
+( )s
+0.502 0.502 0 r
+(__call__)s
+0 g
+(\(self, x, inference = )s
+0.502 0.502 0 r
+(False)s
+0 g
+(\):)s
+(        )59.5 722.4 ms
+0.753 0 0 r
+(#assume x is an input string. We first encode)s
+0 g
+(        )59.5 712.4 ms
+0.753 0 0 r
+(# Use MLP to arrive at ouptut probabilities)s
+0 g
+(        x_encoded = tf.transpose\(tf.Variable\(x\), [)59.5 702.4 ms
+0 0 0.753 r
+(1)s
+0 g
+(, )s
+0 0 0.753 r
+(0)s
+0 g
+(]\))s
+(        z = self.mlp\(x_encoded, inference\))59.5 692.4 ms
+(        )59.5 682.4 ms
+0 0.502 0 r
+(return)s
+0 g
+( z)s
+0 0.502 0 r
+(def)59.5 662.4 ms
+0 g
+( )s
+0.502 0.502 0 r
+(grad_update)s
+0 g
+(\(step_size, variables, grads\):)s
+(    )59.5 652.4 ms
+0 0.502 0 r
+(for)s
+0 g
+( var, grad )s
+0 0.502 0 r
+(in)s
+0 g
+( )s
+0.502 0.502 0 r
+(zip)s
+0 g
+(\(variables, grads\):)s
+(        )59.5 642.4 ms
+0.753 0 0 r
+(# breakpoint\(\))s
+0 g
+(        var.assign_sub\(step_size * grad\))59.5 632.4 ms
+0 0.502 0 r
+(def)59.5 612.4 ms
+0 g
+( )s
+0.502 0.502 0 r
+(accuracy)s
+0 g
+(\(truth, )s
+0.502 0.502 0 r
+(set)s
+0 g
+(, classifier\):)s
+(    preds = tf.argmax\(classifier\()59.5 602.4 ms
+0.502 0.502 0 r
+(set)s
+0 g
+(, inference = )s
+0.502 0.502 0 r
+(True)s
+0 g
+(\), axis = )s
+0 0 0.753 r
+(1)s
+0 g
+(\))s
+(    truth = tf.argmax\(truth, axis = )59.5 592.4 ms
+0 0 0.753 r
+(1)s
+0 g
+(\))s
+(    accuracy = tf.math.count_nonzero\(tf.equal\(truth,preds\)\) / preds.shape[)59.5 582.4 ms
+0 0 0.753 r
+(0)s
+0 g
+(] * )s
+0 0 0.753 r
+(100)s
+0 g
+(    )59.5 572.4 ms
+0 0.502 0 r
+(return)s
+0 g
+( accuracy)s
+0 0.502 0 r
+(if)59.5 552.4 ms
+0 g
+( __name__ == )s
+0 0 0.753 r
+("__main__")s
+0 g
+(:)s
+(    )59.5 542.4 ms
+0.753 0 0.753 r
+(import)s
+0 g
+( argparse)s
+(    )59.5 532.4 ms
+0.753 0 0.753 r
+(import)s
+0 g
+( numpy )s
+0 0.502 0 r
+(as)s
+0 g
+( np)s
+(    )59.5 522.4 ms
+0.753 0 0.753 r
+(from)s
+0 g
+( pathlib )s
+0.753 0 0.753 r
+(import)s
+0 g
+( Path)s
+(    )59.5 502.4 ms
+0.753 0 0.753 r
+(import)s
+0 g
+( matplotlib.pyplot )s
+0 0.502 0 r
+(as)s
+0 g
+( plt)s
+(    )59.5 492.4 ms
+0.753 0 0.753 r
+(import)s
+0 g
+( yaml)s
+(    )59.5 482.4 ms
+0.753 0 0.753 r
+(from)s
+0 g
+( datasets )s
+0.753 0 0.753 r
+(import)s
+0 g
+( load_dataset)s
+(    )59.5 472.4 ms
+0.753 0 0.753 r
+(from)s
+0 g
+( sentence_transformers )s
+0.753 0 0.753 r
+(import)s
+0 g
+( SentenceTransformer)s
+(    )59.5 462.4 ms
+0.753 0 0.753 r
+(from)s
+0 g
+( tqdm )s
+0.753 0 0.753 r
+(import)s
+0 g
+( trange)s
+(    rng = tf.random.get_global_generator\(\))59.5 452.4 ms
+(    rng.reset_from_seed\()59.5 442.4 ms
+0 0 0.753 r
+(0x43966E87BD57227011B5B03B58785EC1)s
+0 g
+(\))s
+(    num_samples = )59.5 432.4 ms
+0 0 0.753 r
+(108000)s
+0 g
+(    num_inputs = )59.5 422.4 ms
+0 0 0.753 r
+(384)s
+0 g
+( )s
+0.753 0 0 r
+(# size of embeddings. Consistent because of padding)s
+0 g
+(    num_outputs = )59.5 412.4 ms
+0 0 0.753 r
+(4)s
+0 g
+(    num_iters = )59.5 402.4 ms
+0 0 0.753 r
+(1000)s
+0 g
+(    step_size = )59.5 392.4 ms
+0 0 0.753 r
+(0.005)s
+0 g
+(    decay_rate = )59.5 382.4 ms
+0 0 0.753 r
+(0.999)s
+0 g
+(    batch_size = )59.5 372.4 ms
+0 0 0.753 r
+(128)s
+0 g
+(    num_hidden_layers = )59.5 362.4 ms
+0 0 0.753 r
+(5)s
+0 g
+(    hidden_layer_width = )59.5 352.4 ms
+0 0 0.753 r
+(256)s
+0 g
+(    refresh_rate = )59.5 332.4 ms
+0 0 0.753 r
+(10)s
+0 g
+(    classifier = Classifier\(num_inputs, num_outputs, num_hidden_layers, hidden_layer)59.5 322.4 ms
+(_width\))59.5 312.4 ms
+(    bar = trange\(num_iters\))59.5 302.4 ms
+(    gamma = )59.5 292.4 ms
+0 0 0.753 r
+(0.0004)s
+0 g
+(    optimizer = tf.keras.optimizers.AdamW\(learning_rate = step_size, weight_decay = )59.5 282.4 ms
+(gamma\))59.5 272.4 ms
+(    cce = tf.keras.losses.CategoricalCrossentropy\(\))59.5 262.4 ms
+(    loss_vec = [])59.5 252.4 ms
+(    accuracy_test = )59.5 242.4 ms
+0 0 0.753 r
+(0.00)s
+0 g
+(    )59.5 232.4 ms
+0.753 0 0 r
+(#)s
+0 g
+(    transformer = SentenceTransformer\()59.5 212.4 ms
+0 0 0.753 r
+('sentence-transformers/all-MiniLM-L6-v2')s
+0 g
+(\))s
+(    )59.5 192.4 ms
+0.753 0 0 r
+(# breakpoint\(\))s
+0 g
+(    ds = load_dataset\()59.5 182.4 ms
+0 0 0.753 r
+("fancyzhx/ag_news")s
+0 g
+(\))s
+(    )59.5 172.4 ms
+0.753 0 0 r
+(# print\('done'\))s
+0 g
+(    test_labels = tf.one_hot\(ds[)59.5 162.4 ms
+0 0 0.753 r
+('test')s
+0 g
+(][)s
+0 0 0.753 r
+('label')s
+0 g
+(], )s
+0 0 0.753 r
+(4)s
+0 g
+(\))s
+(    test_embs = transformer.encode\(ds[)59.5 152.4 ms
+0 0 0.753 r
+('test')s
+0 g
+(][)s
+0 0 0.753 r
+('text')s
+0 g
+(]\))s
+(    train_val = ds[)59.5 132.4 ms
+0 0 0.753 r
+('train')s
+0 g
+(].train_test_split\(test_size = )s
+0 0 0.753 r
+(0.01)s
+0 g
+(\))s
+(    train_set = train_val[)59.5 112.4 ms
+0 0 0.753 r
+('train')s
+0 g
+(])s
+(    val_text = train_val[)59.5 92.4 ms
+0 0 0.753 r
+('test')s
+0 g
+(][)s
+0 0 0.753 r
+('text')s
+0 g
+(])s
+(    val_labels = tf.one_hot\(train_val[)59.5 82.4 ms
+0 0 0.753 r
+('test')s
+0 g
+(][)s
+0 0 0.753 r
+('label')s
+0 g
+(], )s
+0 0 0.753 r
+(4)s
+0 g
+(\))s
+(    val_embs = transformer.encode\(val_text\))59.5 72.4 ms
+(    )59.5 52.4 ms
+0 0.502 0 r
+(for)s
+0 g
+( i )s
+0 0.502 0 r
+(in)s
+0 g
+( bar:)s
+re sp
+%%PageTrailer
+%%Page: 3 3
+%%BeginPageSetup
+sv
+0 g
+F0 sf
+%%EndPageSetup
+F1 sf
+(HW5//eng5.py                                                                  Page 3)59.5 792.4 ms
+F0 sf
+(        batch_indices = rng.uniform\()59.5 772.4 ms
+(            shape=[batch_size], maxval=num_samples, dtype=tf.int32)59.5 762.4 ms
+(        \))59.5 752.4 ms
+(        )59.5 742.4 ms
+0.753 0 0 r
+(##Embeddings)s
+0 g
+(        batch = train_set.select\(batch_indices\))59.5 732.4 ms
+(        x_batch = transformer.encode\(batch[)59.5 722.4 ms
+0 0 0.753 r
+('text')s
+0 g
+(]\))s
+(        y_batch = tf.one_hot\(batch[)59.5 712.4 ms
+0 0 0.753 r
+('label')s
+0 g
+(], )s
+0 0 0.753 r
+(4)s
+0 g
+(\))s
+(        y_batch = tf.cast\(y_batch, )59.5 702.4 ms
+0 0 0.753 r
+('float32')s
+0 g
+(\))s
+(        )59.5 692.4 ms
+0 0.502 0 r
+(with)s
+0 g
+( tf.GradientTape\(\) )s
+0 0.502 0 r
+(as)s
+0 g
+( tape:)s
+(            y_hat = classifier\(x_batch\))59.5 672.4 ms
+(            loss =  cce\(y_batch, y_hat\))59.5 662.4 ms
+(            loss = tf.math.reduce_mean\(loss\))59.5 652.4 ms
+(        grads = tape.gradient\(loss, classifier.trainable_variables\))59.5 632.4 ms
+(        optimizer.apply_gradients\()59.5 612.4 ms
+0.502 0.502 0 r
+(zip)s
+0 g
+(\(grads, classifier.trainable_variables\)\))s
+(        )59.5 602.4 ms
+0 0.502 0 r
+(if)s
+0 g
+( i % )s
+0 0 0.753 r
+(50)s
+0 g
+( == )s
+0 0 0.753 r
+(0)s
+0 g
+(:)s
+(            accuracy_test = accuracy\(val_labels, val_embs, classifier\))59.5 592.4 ms
+(        )59.5 572.4 ms
+0 0.502 0 r
+(if)s
+0 g
+( i % refresh_rate == \(refresh_rate - )s
+0 0 0.753 r
+(1)s
+0 g
+(\):)s
+(            bar.set_description\()59.5 562.4 ms
+(                f)59.5 552.4 ms
+0 0 0.753 r
+("Step {i}; Loss => {loss.numpy\(\).squeeze\(\):0.4f}, Accuracy => {accu)s
+(racy_test:0.4f}, step_size => {step_size:0.4f}")59.5 542.4 ms
+0 g
+(            \))59.5 532.4 ms
+(            bar.refresh\(\))59.5 512.4 ms
+(    )59.5 492.4 ms
+0.502 0.502 0 r
+(print)s
+0 g
+(\(accuracy\(test_labels, test_embs, classifier\)\))s
+re sp
+%%PageTrailer
+%%Trailer
+%%Pages: 3
+%%EOF
+
