@@ -28,27 +28,29 @@ class Linear(tf.Module):
             )
 
     def __call__(self, x):
-        z = einsum()
-
+        # Input should be of dimension batch_size, seq_len, input_dim
+        z = einsum(x, self.w, 'batch_size seq_len num_inputs, num_inputs num_outputs -> batch_size seq_len num_outputs')
+        if self.bias:
+            z = einsum(x, self.w, 'batch_size seq_len num_outputs, one num_outputs -> batch_size seq_len num_outputs')
         return z
 
 class SelfAttention(tf.Module):
-    def __init__(self, vocab_size, d_model, d_values):
+    def __init__(self, d_in, d_model, d_values):
         rng = tf.random.get_global_generator()
-        stddev = tf.math.sqrt(2 / (vocab_size + d_model))
-        stddev_values = tf.math.sqrt(2 / (vocab_size + d_values))
+        stddev = tf.math.sqrt(2 / (d_in + d_model))
+        stddev_values = tf.math.sqrt(2 / (d_in + d_values))
         self.W_Q = tf.Variable(
-            rng.normal(shape=[vocab_size, d_model], stddev=stddev),
+            rng.normal(shape=[d_in, d_model], stddev=stddev),
             trainable = True,
             name = "Self/Attention/Query_Weights"
         )
         self.W_K = tf.Variable(
-            rng.normal(shape=[vocab_size, d_model], stddev=stddev),
+            rng.normal(shape=[d_in, d_model], stddev=stddev),
             trainable = True,
             name = "Self/Attention/Keys_Weights"
         )
         self.W_V = tf.Variable(
-            rng.normal(shape=[vocab_size, d_model], stddev=stddev_values),
+            rng.normal(shape=[d_in, d_model], stddev=stddev_values),
             trainable = True,
             name = "Self/Attention/Values_Weights"
         )
@@ -59,11 +61,12 @@ class SelfAttention(tf.Module):
         x = tf.cast(x, dtype = tf.float32)
         # Input should be [batch_size, sequence_length, vocab_size]
         # breakpoint()
-        Q = einsum(x, self.W_Q, 'batch_size seq_len vocab_size, vocab_size d_model -> batch_size seq_len d_model')
-        K = einsum(x, self.W_K, 'batch_size seq_len vocab_size, vocab_size d_model -> batch_size seq_len d_model')
-        V = einsum(x, self.W_V, 'batch_size seq_len vocab_size, vocab_size d_model -> batch_size seq_len d_model')
+        Q = einsum(x, self.W_Q, 'batch_size seq_len d_in, d_in d_model -> batch_size seq_len d_model')
+        K = einsum(x, self.W_K, 'batch_size seq_len d_in, d_in d_model -> batch_size seq_len d_model')
+        V = einsum(x, self.W_V, 'batch_size seq_len d_in, d_in d_model -> batch_size seq_len d_model')
 
         attention_mat = tf.nn.softmax(einsum(Q, K, 'batch_size seq_len d_model, batch seq_len_2 d_model -> batch_size seq_len seq_len_2') / (self.d_model**0.5), axis = 1)   
+        # Output will be batch_size, seq_len, d_values
         out = einsum(attention_mat, V, 'batch_size seq_len seq_len, batch_size seq_len d_values -> batch_size seq_len d_values')     
         return out
     
@@ -103,30 +106,27 @@ class Tokenizer(tf.Module):
         return ' '.join(words)
 
 class MultiHeadAttention(tf.Module):
-    def __init__(self, n_heads, vocab_size, d_model, d_values):
+    def __init__(self, n_heads, d_model, d_values):
         self.heads = []
+        # Let's just assume input/output dimensions are the same...
         self.n_heads = n_heads
         for i in range(n_heads):
-            self.heads.append(SelfAttention(vocab_size, d_model, d_values))
+            self.heads.append(SelfAttention(d_model, d_model, d_values))
         rng = tf.random.get_global_generator()
-        stddev = tf.math.sqrt(2 / (vocab_size + d_model))
-        self.output_projection = tf.Variable(
-            rng.normal(shape=[vocab_size, d_model], stddev=stddev),
-            trainable = True,
-            name = "Self/Attention/Values_Weights"
-        )
+        stddev = tf.math.sqrt(2 / (d_model + d_model))
+        
     def __call__(self, input):
         #assuming input is tokenized
         head_outputs = []
+        input_head_divided = rearrange(input, 'batch_size, seq_len, d_model -> batch_size, seq_len, head, d_model_by_h', head = self.n_heads)
         for i in  range(self.n_heads):
-            head_outputs.append(self.heads[i](input))
-            #heads come out as batch_size, vocab_size, d_values
+            head_outputs.append(self.heads[i](tf.squeeze(input_head_divided[i], axis = 2)))
+            #heads come out as batch_size, seq_len, d_model
         breakpoint()
-        # head_outputs come out as n_heads, seq_len, vocab_size
-        head_outputs = tf.concat(head_outputs, 0)
-        return head_outputs
-        # want to turn the output into 1, vocab_size
-        #apply linear layer
+        # head_outputs come out as n_heads, batch_size, seq_len, d_model / h
+        out = tf.concat(head_outputs, 3)
+        # out comes out as batch_size, seq_len, d_model
+        return out
 
 class PositionalEncoder(tf.Module):
     def __init__(self, d_model):
@@ -145,13 +145,34 @@ class PositionalEncoder(tf.Module):
         # encoding returns as seq_len, d_model
         return encoding
 
+class LayerNorm(tf.Module):
+    def __init__(self, input_shape, gamma, beta, epsilon):
+        self.gamma = tf.Variable(
+            tf.ones(shape = input_shape, dtype = tf.float32), 
+            trainable = True,
+            name = "LN/gamma"
+        )
+        self.beta = tf.Variable(
+            tf.zeros(shape = input_shape, dtype = tf.float32), 
+            trainable = True,
+            name = "LN/beta"
+        )
+        self.epsilon = epsilon
+    def __call__(self, input):
+class ResidualBlock(tf.Module):
+    def __init__(self, d_model, n_heads):
+        self.multi_head_attention = MultiHeadAttention(n_heads, d_model, d_model, d_model)
+        self.layer_norm = LayerNorm()
+    def __call__(self, input):
+
 class Transformer(tf.Module):
-    def __init__(self, d_model, n_heads, vocab_size):
+    def __init__(self, d_model, n_heads):
         self.d_model = d_model
         self.n_heads = n_heads
-        self.vocab_size = vocab_size
-
-        self.embedding_layer = 
+        # Embedding layer will project to batch_size, seq_len, d_model
+        self.embedding_layer = Linear(1, d_model)
+        self.positional_encoding = PositionalEncoder(d_model)
+        self.multi_head_attention_layer = MultiHeadAttention(self.n_heads, d_model, d_model, d_model)
     def __call__(self, input):
 
 
