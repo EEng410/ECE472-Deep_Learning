@@ -31,11 +31,11 @@ class Linear(tf.Module):
         # Input should be of dimension batch_size, seq_len, input_dim
         z = einsum(x, self.w, 'batch_size seq_len num_inputs, num_inputs num_outputs -> batch_size seq_len num_outputs')
         if self.bias:
-            z = einsum(x, self.w, 'batch_size seq_len num_outputs, one num_outputs -> batch_size seq_len num_outputs')
+            z = einsum(z, self.w, 'batch_size seq_len num_outputs, one num_outputs -> batch_size seq_len num_outputs')
         return z
 
 class SelfAttention(tf.Module):
-    def __init__(self, d_in, d_model, d_values):
+    def __init__(self, d_in, d_model, d_values, max_seq_len = 10):
         rng = tf.random.get_global_generator()
         stddev = tf.math.sqrt(2 / (d_in + d_model))
         stddev_values = tf.math.sqrt(2 / (d_in + d_values))
@@ -61,14 +61,32 @@ class SelfAttention(tf.Module):
         x = tf.cast(x, dtype = tf.float32)
         # Input should be [batch_size, sequence_length, vocab_size]
         # breakpoint()
+        mask = tf.cast(self.get_causal_attention_mask(x), dtype = tf.float32)
+
         Q = einsum(x, self.W_Q, 'batch_size seq_len d_in, d_in d_model -> batch_size seq_len d_model')
         K = einsum(x, self.W_K, 'batch_size seq_len d_in, d_in d_model -> batch_size seq_len d_model')
         V = einsum(x, self.W_V, 'batch_size seq_len d_in, d_in d_model -> batch_size seq_len d_model')
+        # Need to implement masking here:
+        attention_mat = einsum(Q, K, 'batch_size seq_len d_model, batch seq_len_2 d_model -> batch_size seq_len seq_len_2') / (self.d_model**0.5)
+        attention_mat = tf.nn.softmax(attention_mat, axis = 1)   * mask
 
-        attention_mat = tf.nn.softmax(einsum(Q, K, 'batch_size seq_len d_model, batch seq_len_2 d_model -> batch_size seq_len seq_len_2') / (self.d_model**0.5), axis = 1)   
         # Output will be batch_size, seq_len, d_values
+
         out = einsum(attention_mat, V, 'batch_size seq_len seq_len, batch_size seq_len d_values -> batch_size seq_len d_values')     
         return out
+    # This is sourced from https://keras.io/examples/nlp/neural_machine_translation_with_transformer/
+    def get_causal_attention_mask(self, inputs):
+        input_shape = tf.shape(inputs)
+        batch_size, sequence_length = input_shape[0], input_shape[1]
+        i = tf.range(sequence_length)[:, None]
+        j = tf.range(sequence_length)
+        mask = tf.cast(i >= j, dtype="int32")
+        mask = tf.reshape(mask, (1, input_shape[1], input_shape[1]))
+        mult = tf.concat(
+            [tf.expand_dims(batch_size, -1), tf.convert_to_tensor([1, 1])],
+            axis=0,
+        )
+        return tf.tile(mask, mult)
     
 class Tokenizer(tf.Module):
     def __init__(self, corpus):
@@ -111,20 +129,17 @@ class MultiHeadAttention(tf.Module):
         # Let's just assume input/output dimensions are the same...
         self.n_heads = n_heads
         for i in range(n_heads):
-            self.heads.append(SelfAttention(d_model, d_model, d_values))
-        rng = tf.random.get_global_generator()
-        stddev = tf.math.sqrt(2 / (d_model + d_model))
-        
+            self.heads.append(SelfAttention(int(d_model/n_heads), int(d_model/n_heads), int(d_values/n_heads)))
+        self.d_model = d_model
     def __call__(self, input):
         #assuming input is tokenized
         head_outputs = []
-        input_head_divided = rearrange(input, 'batch_size, seq_len, d_model -> batch_size, seq_len, head, d_model_by_h', head = self.n_heads)
+        input_head_divided = rearrange(input, 'batch_size seq_len (head d_model_by_h) -> batch_size seq_len head d_model_by_h', head = self.n_heads, d_model_by_h = self.d_model // self.n_heads)
         for i in  range(self.n_heads):
-            head_outputs.append(self.heads[i](tf.squeeze(input_head_divided[i], axis = 2)))
-            #heads come out as batch_size, seq_len, d_model
-        breakpoint()
+            head_outputs.append(self.heads[i](input_head_divided[:, :, i, :]))
+            
         # head_outputs come out as n_heads, batch_size, seq_len, d_model / h
-        out = tf.concat(head_outputs, 3)
+        out = tf.concat(head_outputs, 2)
         # out comes out as batch_size, seq_len, d_model
         return out
 
@@ -146,7 +161,7 @@ class PositionalEncoder(tf.Module):
         return encoding
 
 class LayerNorm(tf.Module):
-    def __init__(self, input_shape, gamma, beta, epsilon):
+    def __init__(self, input_shape, epsilon):
         self.gamma = tf.Variable(
             tf.ones(shape = input_shape, dtype = tf.float32), 
             trainable = True,
@@ -159,25 +174,48 @@ class LayerNorm(tf.Module):
         )
         self.epsilon = epsilon
     def __call__(self, input):
-class ResidualBlock(tf.Module):
-    def __init__(self, d_model, n_heads):
-        self.multi_head_attention = MultiHeadAttention(n_heads, d_model, d_model, d_model)
-        self.layer_norm = LayerNorm()
-    def __call__(self, input):
+        # Input should be of the shape batch_size, seq_len, d_model
+        mean = tf.math.reduce_mean(input, axis = 2, keepdims = True)
+        var  = tf.math.reduce_variance(input, axis = 2, keepdims = True)
+        # var = repeat(var, 'batch_size seq_len -> batch_size seq_len d_model', d_model = self.gamma.shape[1])
+        input_normalized = (input-mean) / (var**0.5 + self.epsilon)
 
-class Transformer(tf.Module):
-    def __init__(self, d_model, n_heads):
-        self.d_model = d_model
-        self.n_heads = n_heads
-        # Embedding layer will project to batch_size, seq_len, d_model
-        self.embedding_layer = Linear(1, d_model)
-        self.positional_encoding = PositionalEncoder(d_model)
-        self.multi_head_attention_layer = MultiHeadAttention(self.n_heads, d_model, d_model, d_model)
+        # out = einsum(input_normalized, self.gamma,  'batch_size seq_len d_model, batch_size d_model -> batch_size seq_len d_model')
+        out = self.gamma * input_normalized + self.beta
+
+        return out
+
+class ResidualBlock(tf.Module):
+    def __init__(self, n_heads, d_model, d_values):
+        self.multi_head_attention = MultiHeadAttention(n_heads, d_model, d_values)
+        batch_size = 1
+        self.layer_norm = LayerNorm([batch_size, d_model], 1e-5)
+
+        self.output_layer = Linear(d_model, d_model)
+        
     def __call__(self, input):
+        input_attended = self.multi_head_attention(input)
+        input_normalized = self.layer_norm(input_attended)
+        # Implement the first residual connection around the multiheaded attention
+        z = input + input_normalized
+
+        z_proj = self.output_layer(z)
+        out = z_proj + z
+        return out
+
+
+# class Transformer(tf.Module):
+#     def __init__(self, d_model, n_heads, n_layers, vocab_size):
+#         self.d_model = d_model
+#         self.n_heads = n_heads
+#         # Embedding layer will project to batch_size, seq_len, d_model
+#         self.residual_layers = self.
+#     def __call__(self, input):
+
 
 
 if __name__ == '__main__':
-    # from datasets import load_dataset
+
     corpus = "I love to eat, eat, eat. Apples and bananas!"
     tokenizer = Tokenizer(corpus)
     d_model = 20
@@ -192,7 +230,7 @@ if __name__ == '__main__':
     
     tokenized_one_hot = repeat(tokenized_one_hot, "seq_len vocab_size -> batch_size seq_len vocab_size", batch_size = batch_size)
     # need to one hot and add a batch dim to input
-    multi_head_attention = MultiHeadAttention(5, tokenizer.vocab_size, d_model, 23)
-    
-    multi_head_attention(tokenized_one_hot)
+    multi_head_attention = ResidualBlock(5, d_model, d_model)
+    embedding_layer = Linear(tokenizer.vocab_size, d_model)
+    multi_head_attention(embedding_layer(tokenized_one_hot))
     # self_attention = SelfAttention()
