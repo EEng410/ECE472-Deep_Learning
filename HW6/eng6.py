@@ -145,20 +145,26 @@ class MultiHeadAttention(tf.Module):
 
 class PositionalEncoder(tf.Module):
     def __init__(self, d_model):
+        super(PositionalEncoder, self).__init__()
         self.d_model = d_model
+
     def __call__(self, input_seq):
-        k = tf.cast(tf.range(0, len(input_seq), 1), dtype = tf.float32)
-        i = tf.range(0, self.d_model/2, 1)/self.d_model
-        encoding = []
+        batch_size, seq_len = tf.shape(input_seq)[0], tf.shape(input_seq)[1]
+        k = tf.cast(tf.range(seq_len), dtype=tf.float32)
+        i = tf.range(0, self.d_model // 2, dtype=tf.float32) / self.d_model
         K, I = tf.meshgrid(k, i)
-        
+        K = tf.transpose(K)
+        I = tf.transpose(I)
         encoding_sin = tf.sin(tf.divide(K, 10000**I))
         encoding_cos = tf.cos(tf.divide(K, 10000**I))
-        # breakpoint()
-        encoding = tf.transpose(tf.reshape(tf.stack([encoding_sin, encoding_cos], axis = 1), [len(input_seq)
-, -1]))
-        # encoding returns as seq_len, d_model
+
+        # Stack sin and cos encoding and reshape to (seq_len, d_model)
+        encoding = tf.reshape(tf.stack([encoding_sin, encoding_cos], axis=2), [seq_len, self.d_model])
+        # Expand the encoding to (batch_size, seq_len, d_model) by repeating along the batch dimension
+        encoding = tf.tile(tf.expand_dims(encoding, 0), [batch_size, 1, 1])
+
         return encoding
+
 
 class LayerNorm(tf.Module):
     def __init__(self, input_shape, epsilon):
@@ -204,33 +210,105 @@ class ResidualBlock(tf.Module):
         return out
 
 
-# class Transformer(tf.Module):
-#     def __init__(self, d_model, n_heads, n_layers, vocab_size):
-#         self.d_model = d_model
-#         self.n_heads = n_heads
-#         # Embedding layer will project to batch_size, seq_len, d_model
-#         self.residual_layers = self.
-#     def __call__(self, input):
+class Transformer(tf.Module):
+    def __init__(self, d_model, n_heads, n_layers, vocab_size):
+        self.d_model = d_model
+        self.n_heads = n_heads
+        self.n_layers = n_layers
+        self.vocab_size = vocab_size
+        # Embedding layer will project to batch_size, seq_len, d_model
+        self.residual_layers = []
+        self.embedding_layer = Linear(vocab_size, d_model)
+        self.positional_encoder = PositionalEncoder(d_model)
+        for i in range(n_layers):
+            self.residual_layers.append(ResidualBlock(n_heads, d_model, d_model))
+        self.output_layer = Linear(d_model, vocab_size)
 
+        # Output layer will need to be softmaxxed
+    def __call__(self, input):
+        # Assume input has been tokenized and has yet to be one-hot encoded
+        position_encoding = self.positional_encoder(input)
 
+        input_one_hot = tf.one_hot(input, self.vocab_size)
+        input_embedded = self.embedding_layer(input_one_hot)
+        # Embed input and apply positional encoding
+        input_embedded = input_embedded + position_encoding
+        x = input_embedded
+        for i in range(self.n_layers):
+            x = self.residual_layers[i](x)
+        z = self.output_layer(x)
+        # axis = 2 must be softmaxxed
+        z = tf.nn.softmax(z, axis = 2)
+
+        return z
+
+def transformer_make_prediction(transformer, tokenizer, input_seq):
+    seq = tokenizer.tokenize(input_seq)
+    seq_batch = repeat(seq, "seq_len -> batch_size seq_len", batch_size = 1)
+    out = transformer(seq_batch)
+    out_tokens = tf.argmax(out, axis = 2)[0]
+
+    return tokenizer.detokenize(out_tokens)
 
 if __name__ == '__main__':
+    import argparse
 
-    corpus = "I love to eat, eat, eat. Apples and bananas!"
+    import matplotlib.pyplot as plt
+    from tqdm import trange
+    corpus = "Free me from this flesh prison. I yearn for freedom from the confines of skin and bone."
     tokenizer = Tokenizer(corpus)
     d_model = 20
+    n_heads = 5
+    n_layers = 2
     positional_encoding = PositionalEncoder(d_model)
     # breakpoint()
-    tokenized = tokenizer.tokenize("I love, to !eat")
+    tokenized = tokenizer.tokenize("Free me from this flesh prison. I yearn for freedom from the confines of skin and")
+    truth = tokenizer.tokenize("me from this flesh prison. I yearn for freedom from the confines of skin and bone.")
     # perform a one_hot encoding and 
     batch_size = 1
     tokenized_one_hot = tf.one_hot(tokenized, tokenizer.vocab_size)
+    cce = tf.keras.losses.CategoricalCrossentropy()
+    # encoding_test = positional_encoding(tokenized)
     
-    encoding_test = positional_encoding(tokenized)
-    
-    tokenized_one_hot = repeat(tokenized_one_hot, "seq_len vocab_size -> batch_size seq_len vocab_size", batch_size = batch_size)
+    tokenized = repeat(tokenized, "seq_len -> batch_size seq_len", batch_size = batch_size)
+    truth = repeat(truth, "seq_len -> batch_size seq_len", batch_size = batch_size)
+    transformer = Transformer(d_model, n_heads, n_layers, tokenizer.vocab_size)
+
+
+    test = transformer(tokenized)
+    truth = tf.one_hot(truth, tokenizer.vocab_size)
+
+    num_iters = 1000
+    step_size = 0.005
+    decay_rate = 0.999
+    gamma = 0.0004
+    refresh_rate = 10
+
+    optimizer = tf.keras.optimizers.AdamW(learning_rate = step_size, weight_decay = gamma)
+    bar = trange(num_iters)
+
+    for i in bar:
+        x_batch = tokenized
+        y_batch = truth
+        with tf.GradientTape() as tape:
+
+            y_hat = transformer(x_batch)
+            loss =  cce(y_batch, y_hat)
+            loss = tf.math.reduce_mean(loss)
+
+        grads = tape.gradient(loss, transformer.trainable_variables)
+
+        optimizer.apply_gradients(zip(grads, transformer.trainable_variables))
+
+        if i % refresh_rate == (refresh_rate - 1):
+            bar.set_description(
+                f"Step {i}; Loss => {loss.numpy().squeeze():0.4f}, step_size => {step_size:0.4f}"
+            )
+
+            bar.refresh()
+    breakpoint()
     # need to one hot and add a batch dim to input
-    multi_head_attention = ResidualBlock(5, d_model, d_model)
-    embedding_layer = Linear(tokenizer.vocab_size, d_model)
-    multi_head_attention(embedding_layer(tokenized_one_hot))
+    # multi_head_attention = ResidualBlock(5, d_model, d_model)
+    # embedding_layer = Linear(tokenizer.vocab_size, d_model)
+    # multi_head_attention(embedding_layer(tokenized_one_hot))
     # self_attention = SelfAttention()
