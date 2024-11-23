@@ -10,7 +10,7 @@ class Linear(tf.Module):
         stddev = tf.math.sqrt(2 / (num_inputs + num_outputs))
 
         self.w = tf.Variable(
-            rng.normal(shape=[num_inputs, num_outputs], stddev=stddev),
+            rng.uniform(shape=[num_inputs, num_outputs], stddev=stddev),
             trainable=True,
             name="Linear/w",
         )
