@@ -130,10 +130,12 @@ if __name__ == "__main__":
     from PIL import Image
     import nibabel as nib
     from scipy.fftpack import fftshift, fft2, ifft2
-    num_iters = 1
-    step_size = 1e-4
+
+    from einops import repeat
+    num_iters = 1000
+    step_size = 1e-7
     decay_rate = 0.999
-    gamma = 1
+    gamma = 0.00004
     num_hidden_layers = 6
     hidden_layer_width = 512
     refresh_rate = 10
@@ -144,12 +146,26 @@ if __name__ == "__main__":
     img = nib.load("sub-CSI1_ses-16_run-01_T1w.nii.gz")
     im1 = img.get_fdata()
     im = im1[87, :, :]
+
+    im_tensor = tf.cast(tf.Variable(im), dtype = tf.float32)
     # Normalize to 0, 1
     # im = im/np.max(im)
     
+    # Implement a masking prior:
+    N = 256
+    p = 0.9 # Zero out 10% of the pixels
+    m = np.random.randint(N**2, size=(N, N))
+
+    # Generate a sensing matrix
+    mask = (m <= N**2*p)
+
+    mask_reshape = tf.Variable(np.reshape(mask.astype(np.float32), (N**2, 1)))
+
     F_im = fftshift(fft2(im))
-    img_tensor_log_mag = tf.convert_to_tensor(20*np.log10(np.abs(F_im)))
-    img_tensor_angle = tf.convert_to_tensor(np.unwrap(np.unwrap(np.angle(F_im))))
+    F_im_undersamp = F_im * mask
+
+    img_tensor_log_mag = tf.convert_to_tensor(20*np.log10(np.abs(F_im_undersamp)))
+    img_tensor_angle = tf.convert_to_tensor(np.unwrap(np.unwrap(np.angle(F_im_undersamp))))
 
     # Normalize Tensor for training
     # img_tensor = img_tensor/tf.math.reduce_max(img_tensor)
@@ -179,22 +195,40 @@ if __name__ == "__main__":
 
     # img_tensor = tf.concat([img_tensor_log_mag, img_tensor_angle], 1)
 
-    img_tensor = tf.concat([img_tensor_log_mag, img_tensor_angle], axis = 1)
-    img_mean = tf.math.reduce_mean(img_tensor, axis = 0)
-    img_std = tf.math.sqrt(tf.math.reduce_variance(img_tensor, axis = 0))
+    # Only calculate statistics on the masked image
 
-    img_tensor = (img_tensor - img_mean)/img_std
+    mask_reshape_2d = repeat(mask_reshape, 'N_sq one -> N_sq (c one)', c=2)
+    img_tensor = tf.concat([img_tensor_log_mag, img_tensor_angle], axis = 1)
+    img_mean = tf.math.reduce_mean(tf.boolean_mask(img_tensor, mask_reshape_2d), axis = 0)
+    img_std = tf.math.sqrt(tf.math.reduce_variance(tf.boolean_mask(img_tensor, mask_reshape_2d), axis = 0))
+
+    img_tensor_norm = (img_tensor - img_mean)/img_std
+
+    breakpoint()
+
     # Initialize SIREN Model, 2 channel output to model log magnitude and phase
     # siren = SIREN(2, 2, num_hidden_layers, hidden_layer_width)
     siren = unpickle("siren.pkl")
     bar = trange(num_iters)
     for i in bar:
         x_batch = coord_tensor
+        
         y_batch = img_tensor
         with tf.GradientTape(persistent = True) as tape:
             y_hat = siren(x_batch)
-            # loss =  tf.math.reduce_mean((y_batch - y_hat) ** 2) + gamma * tf.image.total_variation(tf.reshape(y_hat, shape = [1, 256, 256, 1]))
-            loss =  tf.math.reduce_mean((y_batch - y_hat) ** 2)
+
+            # Use this to roughly blow up the image statistics to match that of the original tensor
+            # I tried this and it saved a LOT on training time
+            y_hat = y_hat*img_std
+            y_hat = y_hat+img_mean
+            logmag = tf.reshape(y_hat[:, 0], shape = [256, 256])
+            phase = tf.reshape(y_hat[:, 1], shape = [256, 256])
+            mag = 10**(logmag/20)
+            F_im_approx = tf.dtypes.complex(mag, tf.zeros(shape = mag.shape))*tf.math.exp(tf.dtypes.complex(tf.zeros(shape = phase.shape), phase))
+            im_recon = tf.abs(tf.signal.ifft2d(F_im_approx))
+            # loss =  tf.math.reduce_mean((tf.boolean_mask(y_hat, mask_reshape_2d) - tf.boolean_mask(y_batch, mask_reshape_2d)))
+            # loss =  tf.math.reduce_mean((tf.boolean_mask(y_hat, mask_reshape_2d) - tf.boolean_mask(y_batch, mask_reshape_2d)) ** 2) + gamma * tf.math.reduce_mean((im_tensor - im_recon) ** 2)
+            loss = tf.math.reduce_mean((im_tensor - im_recon) ** 2)
             # for var in siren.trainable_variables:
             #     loss += gamma* tf.math.reduce_sum(tf.multiply(tf.reshape(var, [1, -1]), tf.reshape(var, [1, -1])))
         grads = tape.gradient(loss, siren.trainable_variables)
@@ -213,8 +247,8 @@ if __name__ == "__main__":
     # plt.imshow(im.numpy())
     # plt.savefig("im_est.png")
     # 
-    y_hat = y_hat*img_std
-    y_hat = y_hat+img_mean
+    # y_hat = y_hat*img_std
+    # y_hat = y_hat+img_mean
     logmag = tf.reshape(y_hat[:, 0], shape = [256, 256])
     phase = tf.reshape(y_hat[:, 1], shape = [256, 256])
     plt.imshow(logmag.numpy())
@@ -223,6 +257,14 @@ if __name__ == "__main__":
     plt.imshow(phase.numpy())
     plt.savefig("phase_est.png")
     breakpoint()
-    img_out = Image.fromarray(tf.reshape(y_hat*255, shape = [256, 256]).numpy().astype(np.uint8))
-    img_out.save("experiment.png")
+    mag = 10**(logmag/20)
+    F_im_approx = tf.dtypes.complex(mag, tf.zeros(shape = mag.shape))*tf.math.exp(tf.dtypes.complex(tf.zeros(shape = phase.shape), phase))
+    im_recon = np.abs(tf.signal.ifft2d(F_im_approx).numpy())
+    plt.imshow(im_recon)
+    plt.savefig("im_recon.png")
     breakpoint()
+
+# Some final notes. I implemented a training regime where I pretrained on the task of just matching the unmasked image pixels. I imposed no penalty on the reconstruction loss for
+# the image itself for the first 1000 iterations. Then, for the next 9000 iterations, I trained using a joint image-domain reconstruction loss while also penalizing the model for 
+# attempting to change coordinates in k-space. I staged some step size changes but this did not improve loss very much. You can see that there are visual artifacts in the image, 
+# especially in the background. The final 3000 iterations used only an image domain reconstruction loss, which erased most of the artifacts in the final image. 
