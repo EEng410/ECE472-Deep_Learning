@@ -3,11 +3,11 @@ from sklearn.inspection import DecisionBoundaryDisplay
 
 
 class Linear(tf.Module):
-    def __init__(self, num_inputs, num_outputs, bias=True):
+    def __init__(self, num_inputs, num_outputs, omega_0 = 30, bias=True):
         rng = tf.random.get_global_generator()
-
+        self.omega_0 = omega_0
         self.w = tf.Variable(
-            rng.uniform(shape=[num_inputs, num_outputs], minval = -1/num_inputs, maxval = 1/num_inputs),
+            rng.uniform(shape=[num_inputs, num_outputs], minval = -np.sqrt(6/num_inputs)/self.omega_0 , maxval = np.sqrt(6/num_inputs)/self.omega_0),
             trainable=True,
             name="Linear/w",
         )
