@@ -1,0 +1,239 @@
+Who is Donald Trump?
+ 
+ 
+ Result 1 
+ 
+ 
+                      UNITED STATES DISTRICT COURT
+                      FOR THE DISTRICT OF COLUMBIA
+
+_________________________________________
+                                          )
+BENNIE G. THOMPSON et al.,                )
+                                          )
+      Plaintiffs,                         )
+                                          )
+             v.                           )   Case No. 21-cv-00400 (APM)
+                                          )
+DONALD J. TRUMP et al.,                   )
+                                          )
+      Defendants.                         )
+_________________________________________ )
+_________________________________________
+                                          )
+ERIC SWALWELL,                            )
+                                          )
+      Plaintiff,                          )
+                                          )
+             v.                           )   Case No. 21-cv-00586 (APM)
+                                          )
+DONALD J. TRUMP et al.,                   )
+                                          )
+      Defendants.                         )
+_________________________________________ )
+_________________________________________
+                                          )
+JAMES BLASSINGAME &                       )
+      SIDNEY HEMBY,                       )
+                                          )
+      Plaintiffs,                         )
+                                          )
+             v.                           )   Case No. 21-cv-00858 (APM)
+                                          )
+DONALD J. TRUMP,                          )
+                                          )
+      Defendant.                          )
+_________________________________________ )
+                                 MEMORANDUM OPINION AND ORDER
+
+I.         INTRODUCTION
+
+           January 6, 2021 was supposed to mark the peaceful transition of power. It had been that
+
+way for over two centuries, one presidential administration handing off peacefully to the next.
+
+President Ronald Reagan in his first inaugural address described “the orderly transfer of authority”
+
+as “nothing less than a miracle.” 1 Violence and disruption happened in other countries, but not
+
+here. This is the United States of America, and it could never happen to our democracy.
+
+           But it did that very afternoon. At around 1:30 p.m., thousands of supporters of President
+
+Donald J. 
+ 
+ 
+ Result 2 
+ 
+ 
+<pre class="inline">                      UNITED STATES DISTRICT COURT
+                      FOR THE DISTRICT OF COLUMBIA
+
+_________________________________________
+                                          )
+BENNIE G. THOMPSON et al.,                )
+                                          )
+      Plaintiffs,                         )
+                                          )
+             v.                           )   Case No. 21-cv-00400 (APM)
+                                          )
+DONALD J. TRUMP et al.,                   )
+                                          )
+      Defendants.                         )
+_________________________________________ )
+_________________________________________
+                                          )
+ERIC SWALWELL,                            )
+                                          )
+      Plaintiff,                          )
+                                          )
+             v.                           )   Case No. 21-cv-00586 (APM)
+                                          )
+DONALD J. TRUMP et al.,                   )
+                                          )
+      Defendants.                         )
+_________________________________________ )
+_________________________________________
+                                          )
+JAMES BLASSINGAME &                       )
+      SIDNEY HEMBY,                       )
+                                          )
+      Plaintiffs,                         )
+                                          )
+             v.                           )   Case No. 21-cv-00858 (APM)
+                                          )
+DONALD J. TRUMP,                          )
+                                          )
+      Defendant.                          )
+_________________________________________ )
+                                 MEMORANDUM OPINION AND ORDER
+
+I.         INTRODUCTION
+
+           January 6, 2021 was supposed to mark the peaceful transition of power. It had been that
+
+way for over two centuries, one presidential administration handing off peacefully to the next.
+
+President Ronald Reagan in his first inaugural address described “the orderly transfer of authority”
+
+as “nothing less than a miracle.” 1 Violence and disruption happened in other countries, but not
+
+here. This is the United States of America, and it could never happen to our democracy.
+
+           But it did that very afternoon. At around 1:30 p.m., thousands of supporters of P
+ 
+ 
+ Result 3 
+ 
+ 
+Introduction
+The ideological leanings of a person within the left-right political spectrum are often reflected by how one feels about different topics and by means of preferences among various choices on particular issues. For example, a left-leaning person would prefer nationalization and state control of public services (such as healthcare) where privatization would be often preferred by people that lean towards the right. Likewise, a left-leaning person would often be supportive of immigration and will often talk about immigration in a positive manner citing examples of benefits of immigration on a country's economy. A right-leaning person, on the other hand, will often have a negative opinion about immigration. Most of the existing works on political ideology detection from text have focused on utilizing bag-of-words and other syntactic features to capture variations in language use BIBREF0 , BIBREF1 , BIBREF2 . We propose an alternative mechanism for political ideology detection based on sentiment analysis. We posit that adherents of a political ideology generally have similar sentiment toward specific topics (for example, right wing followers are often positive towards free markets, lower tax rates, etc.) and thus, a political ideology can be represented by a characteristic sentiment distribution over different topics (Section SECREF3 ). This topic-specific sentiment representation of a political ideology can then be used for automatic ideology detection by comparing the topic-specific sentiments as expressed by the content in a document (news article, magazine article, collection of social media posts by a user, utterances in a conversation, etc.). In order to validate our hypothesis, we consider exploiting the sentiment information towards topics from archives of political debates to build a model for identifying political orientation of speakers as one of right or left leaning, which corresponds to republicans and democrats respectively, within the context of US politics. This is inspired by our observation that the political leanings of debators are often expressed in debates by way of speakers' sentiments towards particular topics. Parliamentary or Senate debates often bring the ideological differences to the centre stage, though somewhat indirectly. Heated debates in such forums tend to focus on the choices proposed by the executive that are in sharp conflict with the preference structure of the opposition members. Due to this inherent tendenc
+ 
+ 
+ Result 4 
+ 
+ 
+Introduction
+The ideological leanings of a person within the left-right political spectrum are often reflected by how one feels about different topics and by means of preferences among various choices on particular issues. For example, a left-leaning person would prefer nationalization and state control of public services (such as healthcare) where privatization would be often preferred by people that lean towards the right. Likewise, a left-leaning person would often be supportive of immigration and will often talk about immigration in a positive manner citing examples of benefits of immigration on a country's economy. A right-leaning person, on the other hand, will often have a negative opinion about immigration. Most of the existing works on political ideology detection from text have focused on utilizing bag-of-words and other syntactic features to capture variations in language use BIBREF0 , BIBREF1 , BIBREF2 . We propose an alternative mechanism for political ideology detection based on sentiment analysis. We posit that adherents of a political ideology generally have similar sentiment toward specific topics (for example, right wing followers are often positive towards free markets, lower tax rates, etc.) and thus, a political ideology can be represented by a characteristic sentiment distribution over different topics (Section SECREF3 ). This topic-specific sentiment representation of a political ideology can then be used for automatic ideology detection by comparing the topic-specific sentiments as expressed by the content in a document (news article, magazine article, collection of social media posts by a user, utterances in a conversation, etc.). In order to validate our hypothesis, we consider exploiting the sentiment information towards topics from archives of political debates to build a model for identifying political orientation of speakers as one of right or left leaning, which corresponds to republicans and democrats respectively, within the context of US politics. This is inspired by our observation that the political leanings of debators are often expressed in debates by way of speakers' sentiments towards particular topics. Parliamentary or Senate debates often bring the ideological differences to the centre stage, though somewhat indirectly. Heated debates in such forums tend to focus on the choices proposed by the executive that are in sharp conflict with the preference structure of the opposition members. Due to this inherent tendenc
+ 
+ 
+ Result 5 
+ 
+ 
+Introduction
+Our political systems are unequal, and we suffer for it. Diversity in representation around decision-making tables is important for the health of our democratic institutions BIBREF0. One example of this inequity of representation is the gender disparity in politics: there are fewer women in politics than men, largely because women do not run for office at the same rate as men. This is because women face systemic barriers in political systems across the world BIBREF1. One of these barriers is online harassment BIBREF2, BIBREF3. Twitter is an important social media platform for politicians to share their visions and engage with their constituents. Women are disproportionately harassed on this platform because of their gender BIBREF4. To raise awareness of online abuse and shift the discourse surrounding women in politics, we designed, built, and deployed ParityBOT: a Twitter bot that classifies hateful tweets directed at women in politics and then posts “positivitweets”. This paper focuses on how ParityBOT improves discourse in politics. Previous work that addressed online harassment focused on collecting tweets directed at women engaged in politics and journalism and determining if they were problematic or abusive BIBREF5, BIBREF3, BIBREF6. Inspired by these projects, we go one step further and develop a tool that directly engages in the discourse on Twitter in political communities. Our hypothesis is that by seeing “positivitweets” from ParityBOT in their Twitter feeds, knowing that each tweet is an anonymous response to a hateful tweet, women in politics will feel encouraged and included in digital political communitiesBIBREF7. This will reduce the barrier to fair engagement on Twitter for women in politics. It will also help achieve gender balance in Canadian politics and improve gender equality in our society.
+Methods ::: Technical Details for ParityBot
+In this section, we outline the technical details of ParityBot. The system consists of: 1) a Twitter listener that collects and classifies tweets directed at a known list of women candidates, and 2) a responder that sends out positivitweets when hateful tweets are detected. We collect tweets from Twitter's real-time streaming API. The stream listener uses the open-source Python library Tweepy BIBREF8. The listener analyses tweets in real-time by firing an asynchronous tweet analysis and storage function for each English tweet mentioning one or more candidate usernames of interest. We limit 
+ 
+ 
+ Result 6 
+ 
+ 
+Introduction
+Our political systems are unequal, and we suffer for it. Diversity in representation around decision-making tables is important for the health of our democratic institutions BIBREF0. One example of this inequity of representation is the gender disparity in politics: there are fewer women in politics than men, largely because women do not run for office at the same rate as men. This is because women face systemic barriers in political systems across the world BIBREF1. One of these barriers is online harassment BIBREF2, BIBREF3. Twitter is an important social media platform for politicians to share their visions and engage with their constituents. Women are disproportionately harassed on this platform because of their gender BIBREF4. To raise awareness of online abuse and shift the discourse surrounding women in politics, we designed, built, and deployed ParityBOT: a Twitter bot that classifies hateful tweets directed at women in politics and then posts “positivitweets”. This paper focuses on how ParityBOT improves discourse in politics. Previous work that addressed online harassment focused on collecting tweets directed at women engaged in politics and journalism and determining if they were problematic or abusive BIBREF5, BIBREF3, BIBREF6. Inspired by these projects, we go one step further and develop a tool that directly engages in the discourse on Twitter in political communities. Our hypothesis is that by seeing “positivitweets” from ParityBOT in their Twitter feeds, knowing that each tweet is an anonymous response to a hateful tweet, women in politics will feel encouraged and included in digital political communitiesBIBREF7. This will reduce the barrier to fair engagement on Twitter for women in politics. It will also help achieve gender balance in Canadian politics and improve gender equality in our society.
+Methods ::: Technical Details for ParityBot
+In this section, we outline the technical details of ParityBot. The system consists of: 1) a Twitter listener that collects and classifies tweets directed at a known list of women candidates, and 2) a responder that sends out positivitweets when hateful tweets are detected. We collect tweets from Twitter's real-time streaming API. The stream listener uses the open-source Python library Tweepy BIBREF8. The listener analyses tweets in real-time by firing an asynchronous tweet analysis and storage function for each English tweet mentioning one or more candidate usernames of interest. We limit 
+ 
+ 
+ Result 7 
+ 
+ 
+	Overview
+
+The majority of Latin American and Caribbean countries are functional democracies, but institutional weaknesses and widespread public corruption in many of these countries have undermined effective governance and sparked protest and demands for greater transparency. From a U.S. perspective, widespread corruption in Latin America is a potential threat to regional security, has a symbiotic relationship with violent crime, and can be a stimulus for migration.
+This report examines how anti-corruption strategies in U.S. policy and legislation initially evolved from a desire to level the playing field for corporations working in the developing world. At first, U.S. corporations were regulated so they could not bribe or extort to win contracts, and then the focus expanded to helping build more effective institutions and the rule of law in developing countries to ensure more fair, predictable, and transparent systems. The report examines how corruption contributes to wasting public monies, distorting electoral outcomes, and reinforcing criminal structures. Although the fight against corruption is a global effort, this report focuses more closely on U.S. interests in fighting corruption in the region, and how U.S. policy and assistance programs have developed to address that goal. Contemporary anti-corruption efforts in Brazil, Mexico, and Central America are examined as case studies. The report closes with considerations for Congress in conducting its oversight role over U.S. funded anti-corruption efforts in the region and pursuing the policy objective of broadening the rule of law and encouraging good government.
+
+	Background
+
+In the wake of numerous scandals, particularly regarding the multi-country scandal involving the Odebrecht corporation, corruption has become a searing, top-level concern in many Latin American nations, with implications for U.S. policy. In past decades, public rejection of corruption has risen and then crested and fallen back, sometimes to a tacit toleration of bribery and other corruption as the way of politics. Some critics maintain that corruption is so entrenched that it is now endemic in the region and forms the primary path to political power. The number of grand-scale scandals exposed in recent years in the region, such as payoff schemes involving high court justices and top-level officials, has led some voters to conclude that all parties and politicians are corrupt, resulting in presidents and vice presidents being pu
+ 
+ 
+ Result 8 
+ 
+ 
+Introduction
+Presidential election is an important moment for every country, including the United States. Their economic policies, which are set by the government, affect the economy of other countries BIBREF0 . On 2016 U.S. Presidential Election, Republican and Democratic candidates use Twitter as their campaign media. Previous researches have predicted the outcome of U.S. presidential election using Twitter BIBREF1 , BIBREF2 , BIBREF3 , BIBREF4 . Some of them proved that Twitter data can complement or even predict the poll results. This follows the increasing improvement in the text mining researches BIBREF5 , BIBREF6 , BIBREF7 , BIBREF8 , BIBREF9 . Some of the most recent studies are BIBREF3 , BIBREF2 , BIBREF1 , BIBREF10 . Below we discuss these three recent studies and explain how our study relates to theirs. The first study is done by BIBREF3 , which analyzed the sentiment on 2008 U.S. Presidential Candidates by calculating sentiment ratio using moving average. They counted the sentiment value for Obama and McCain based on number of the positive and negative words stated on each tweet. The tweets were gathered during 2008-2009, whereas the positive and negative words were acquired from OpinionFinder. They found that the comparison between sentiment on tweets and polls were complex since people might choose "Obama", "McCain", "have not decided", "not going to vote", or any independent candidate on the polls. The second study predicted the outcome of 2012 U.S. Presidential Election polls using Naive Bayesian models BIBREF2 . They collected over 32 million tweets from September 29 until November 16, 2012. They used Tweepy and set keywords for each candidate to collect the tweets, such as mitt romney, barack obama, us election. The collected tweets passed some preprocessing stages: (1) URL, mentions, hashtags, RT, and stop words removal; (2) tokenization; and (3) additional not_ for negation. They analyzed 10,000 randomly selected tweets which only contain a candidate name. The analysis results were compared to Huffington Post's polls and they found that Obama's popularity on Twitter represented the polls result. This research didn't use tweets with two or more candidate names since it requires more complex preprocessing methods. The third study built a system for real-time sentiment analysis on 2012 U.S. Presidential Election to show public opinion about each candidate on Twitter BIBREF1 . They collected tweets for each candidates using Gnip Power Trac
+ 
+ 
+ Result 9 
+ 
+ 
+Introduction
+Presidential election is an important moment for every country, including the United States. Their economic policies, which are set by the government, affect the economy of other countries BIBREF0 . On 2016 U.S. Presidential Election, Republican and Democratic candidates use Twitter as their campaign media. Previous researches have predicted the outcome of U.S. presidential election using Twitter BIBREF1 , BIBREF2 , BIBREF3 , BIBREF4 . Some of them proved that Twitter data can complement or even predict the poll results. This follows the increasing improvement in the text mining researches BIBREF5 , BIBREF6 , BIBREF7 , BIBREF8 , BIBREF9 . Some of the most recent studies are BIBREF3 , BIBREF2 , BIBREF1 , BIBREF10 . Below we discuss these three recent studies and explain how our study relates to theirs. The first study is done by BIBREF3 , which analyzed the sentiment on 2008 U.S. Presidential Candidates by calculating sentiment ratio using moving average. They counted the sentiment value for Obama and McCain based on number of the positive and negative words stated on each tweet. The tweets were gathered during 2008-2009, whereas the positive and negative words were acquired from OpinionFinder. They found that the comparison between sentiment on tweets and polls were complex since people might choose "Obama", "McCain", "have not decided", "not going to vote", or any independent candidate on the polls. The second study predicted the outcome of 2012 U.S. Presidential Election polls using Naive Bayesian models BIBREF2 . They collected over 32 million tweets from September 29 until November 16, 2012. They used Tweepy and set keywords for each candidate to collect the tweets, such as mitt romney, barack obama, us election. The collected tweets passed some preprocessing stages: (1) URL, mentions, hashtags, RT, and stop words removal; (2) tokenization; and (3) additional not_ for negation. They analyzed 10,000 randomly selected tweets which only contain a candidate name. The analysis results were compared to Huffington Post's polls and they found that Obama's popularity on Twitter represented the polls result. This research didn't use tweets with two or more candidate names since it requires more complex preprocessing methods. The third study built a system for real-time sentiment analysis on 2012 U.S. Presidential Election to show public opinion about each candidate on Twitter BIBREF1 . They collected tweets for each candidates using Gnip Power Trac
+ 
+ 
+ Result 10 
+ 
+ 
+                 United States Court of Appeals
+                             For the Eighth Circuit
+                        ___________________________
+
+                                No. 21-2261
+                        ___________________________
+
+                             United States of America
+
+                        lllllllllllllllllllllPlaintiff - Appellee
+
+                                           v.
+
+            Ferris T. Valentine, also known as Christopher Scott Bush
+
+                       lllllllllllllllllllllDefendant - Appellant
+                                       ____________
+
+                     Appeal from United States District Court
+                    for the District of South Dakota - Southern
+                                   ____________
+
+                              Submitted: May 2, 2022
+                                Filed: May 5, 2022
+                                  [Unpublished]
+                                  ____________
+
+Before SHEPHERD, KELLY, and STRAS, Circuit Judges.
+                           ____________
+
+PER CURIAM.
+
+       Ferris Valentine received a 262-month sentence after a jury found him guilty
+of two counts of armed bank robbery. See 18 U.S.C. §§ 2113(a), 2113(d), 2. An
+Anders brief suggests that the evidence was insufficient and the sentence is
+unreasonable. See Anders v. California, 386 U.S. 738 (1967). A pro se supplemental
+brief raises a host of other issues.
+       We conclude that the evidence was sufficient to allow the jury to find that
+Valentine committed both robberies. See United States v. Birdine, 515 F.3d 842,
+844 (8th Cir. 2008) (articulating the standard of review); see also United States v.
+Rogers, 73 F.3d 774, 778 (8th Cir. 1996) (holding that “testimony at trial specifically
+connecting [a criminal defendant] to [a] bank robbery” was sufficient to uphold a
+jury verdict). We also conclude that the overall sentence is substantively reasonable.
+See United States v. Callaway, 762 F.3d 754, 760 (8th Cir. 2014) (stating that a
+within-Guidelines sentence is presumed reasonable). The record establishes that the
+district court1 sufficiently considered the statutory sentencing factors, 18 U.S.C.
+§ 3553(a), and did not rely on an improper factor or commit a clear error of
+judgment. See United States v. Feemster, 572 F.3d 455, 461–62 (8th Cir. 2009) (en
+banc).
+
+       Valentine’s pro se arguments fare no better. There was no Due Process or
+Suspension Clause violation. See Lewis v. Casey, 

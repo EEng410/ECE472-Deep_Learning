@@ -1,0 +1,277 @@
+What is the radius of the Earth?
+ 
+ 
+ Result 1 
+ 
+ 
+the problem is that the sphere can be distorted a number of ways, and having all those points known on the equator, lets say, wont help you map points further away.
+
+ You need better 'close' points, then you can assume these three points are on a plane with the fourth and do the interpolation --knowing that the distance of longitudes is a function, not a constant.
+
+
+ 
+ 
+ Result 2 
+ 
+ 
+Paragraph 1:  A planet, the most common setting of his robot short stories. Earth is the planet upon which humans have lived for longer than anyone remembers. Earth features in one of several Origin Myths found throughout the Galactic Empire. Its history, however, is shrouded in the mists of time. Earth was the third planet from its sun (called Sol) and had one large moon (Luna). From millions of years BC to the early Galactic Era, Earth was one of the most, if not the most, important planets in the galaxy, being one of the only planets to ever develop life without being colonized by other worlds, and being the origin planet of the human race, who would go on to dominate the galaxy through the Galactic Empire. Around 65,000,000 BC, the dinosaurs, the original dominant race of Earth, were killed by a race of small intelligent lizards armed with guns, which either left Earth or died out. Eventually, humans evolved on the planet. Up until the 20th century AD, the human race progressed, having wars and developing technology, experiencing the ups and downs of civilization, but nothing extremely radical happened, and, most importantly, no one made an attempt to leave Earth and colonize new worlds. In the early 20th century, two world wars were endured, WW1 in the 1910s and WW2 in the 1940s. Eventually, in 1973, the human race reached for the moon. The Prometheus failed, but, after some complicated series of events, the New Prometheus reached the moon in 1978, achieving the goal of leaving Earth, if only slightly. From around 1979 to 1982, WW3 took place, ending nationalism, and splitting Earth into Regions. From there, the planet experienced a new renaissance, developing positronic brains in the 1980s and 1990s, governed by the Three Laws of Robotics. One of the most important early pioneers in robotics was Susan Calvin (1982-2064), who was the first and chief robopsychologist at US Robots and Mechanical Men from 2007 to 2058. Robots eventually grew very advanced. In 2065, Earth colonized the first extrasolar world, Aurora, the World of the Dawn. This was the first of the great Spacer Worlds, which were colonized over thousands of years across the stars. Around 3720, they rebelled against Earth, winning the Three-Week War, and would become higher in society than Earth. In 4724, detective Elijah Baley managed to allow the colonization of new worlds by Earth, which had been suppressed, and the Settler worlds were made. These were threatened in 4922 but were saved
+ 
+ 
+ Result 3 
+ 
+ 
+A\* and heuristic
+-----------------
+
+ `A*` always requires a heuristic, it is defined using heuristic values for distances. `A*` in principle is just the ordinary **Dijkstra algorithm** using heuristic guesses for the distances.
+
+ The heuristic function should run fast, in `O(1)` at query time. Otherwise you won't have much benefit from it. As heuristic you can select **every function** `h` for which:
+
+ * `h` is **admissible**: `h(u) <= dist(u, t)` (never overestimate)
+* `h` is **monotone**: `h(u) <= cost(u, v) + h(v)` (triangle inequality)
+
+ There are however some heuristics that are frequently used in practice like:
+
+ * Straight-line distance (as-the-crow-flies)
+* Landmark heuristic (pre-compute distances for all nodes to a set of selected nodes (landmarks))
+
+ Dependent on your application you might also find other heuristic functions useful.
+
+ 
+
+---
+
+ Straight-line heuristic
+-----------------------
+
+ The straight-line distance (or as-the-crow-flies) is straightforward and easy to compute. For two nodes `v, u` you know the exact location, i.e. **Longitude** and **Latitude**.
+
+ You then compute the **straight-line** distance by defining `h` as the [Euclidean distance](https://en.wikipedia.org/wiki/Euclidean_distance) or if you want more precise results you don't ignore the fact that the earth is a sphere and use the [Great-circle distance](https://en.wikipedia.org/wiki/Great-circle_distance). Both methods run in `O(1)`.
+
+ 
+
+---
+
+ Landmark heuristic
+------------------
+
+ Here you pre-select some important nodes in your graph. Ideally you always choose a node that is part of frequently used shortest-paths.
+
+ However that knowledge is often not available so you can just select nodes that are farthest to the other selected landmarks. You can do so by using **greedy farthest selection** (pick node which maximizes `min_l dist(l, u)` where `l` are already selected landmarks). Therefore you can do a **Dijkstra from set** which is very easy to implement. Just add multiple nodes at once into your *Dijkstra* starting queue (all current landmarks). Then you run the *Dijkstra* until all distances have been computed and pick the node with **greatest shortest-path distance** as next landmark. By that your landmarks are equally spread around the whole graph.
+
+ After selecting landmarks you pre-compute the distance from all landmarks to all other nodes and **vice versa** (from all nodes to all landmarks) and **store them**. Therefore just run a *Dijkstra* starting at a la
+ 
+ 
+ Result 4 
+ 
+ 
+Are there any more specific details on the kind of distortion? If, for example, your latitudes and longitudes are "distorted" onto your 2D map using a Mercator projection, the conversion math is [readily available](http://www.wikipedia.org/wiki/Mercator_projection).
+
+ If the map is distorted truly arbitrarily, there are lots of things you could try, but the simplest would probably be to compute a [weighted average](http://www.wikipedia.org/wiki/Weighted_mean) from your existing point mappings. Your weights could be the squared inverse of the x/y distance from your new point to each of your existing points.
+
+ Some pseudocode:
+
+ 
+```
+estimate-latitude-longitude (x, y) numerator-latitude := 0 numerator-longitude := 0 denominator := 0 for each point, deltaX := x - point.x deltaY := y - point.y distSq := deltaX * deltaX + deltaY * deltaY weight := 1 / distSq numerator-latitude += weight * point.latitude numerator-longitude += weight * point.longitude denominator += weight return (numerator-latitude / denominator, numerator-longitude / denominator) 
+```
+ This code will give a relatively simple approximation. If you can be more precise about the way the projection distorts the geographical coordinates, you can probably do much better.
+
+
+ 
+ 
+ Result 5 
+ 
+ 
+If I understand this correctly, you're trying to compute intermediary positions between two points. Those points can be be either on a line or on an arc.
+
+ Getting the intermediary positions on a line is fairly simple and there multiple ways to tackle this. One idea that comes to mind is to use the [lerp()](http://processing.org/reference/lerp_.html) function (which does linear interpolation). Here's a very basic example:
+
+ 
+```
+//draw stuff smooth();strokeWeight(5); //line stuff PVector start = new PVector(10,10); PVector end = new PVector(90,90); int numPts = 5; float increment = 1.0/numPts; for(int i = 0; i < numPts; i++){//for each point that should be on the line float t = increment * i ; //'traversal' on the line (0.0 is at start 1.0 is at end) point(lerp(start.x,end.x,t),//interpolate and draw lerp(start.y,end.y,t)); } 
+```
+ Run this in a new sketch to see what I mean. This can also be done manually, making use of the PVector class and the interpolation formula:
+
+ 
+```
+ point(percentage) = point(start) + ((point(end)-point(start)) * percentage) 
+```
+ hence:
+
+ 
+```
+//draw stuff smooth();strokeWeight(5); //line stuff PVector start = new PVector(10,10); PVector end = new PVector(90,90); int numPts = 5; float increment = 1.0/numPts; for(int i = 0; i < numPts; i++){//for each point that should be on the line float t = increment * i ; //'traversal' on the line (0.0 is at start 1.0 is at end) PVector current = PVector.add(start,PVector.mult(PVector.sub(end,start),t)); point( current.x, current.y ); } 
+```
+ But `lerp()` seems more lose and could easily fit into your existing setup.
+
+ For the arc, things are just a tad complicated as you'll need a bit of trigonometry: converting cartesian to polar coordinates. It sounds a bit more complicated that it should but it's not that hard once you visualize things mentally. Imagine you're looking at a clock. 
+
+ You can tell precisely what time it is by looking at the **positions** of the two needles (one for hour and one for minute). Using the clock positions, or "coordinates" you can easily tell when it's noon/midnight. Similarly you can convert back from 'clock coordinates' and say what the needle positions for noon/midnight. 
+
+ Looking at the clock you can also imagine the cartesian system overlayed: 0,0 is at the centre and noon/midnight in cartesian would be (0,1) if 1 would the unit used for a needle **length**. For 15:15 you'd get (1,0), (0,-1) for 18:30, (-1,0) for 20:45, etc. You're converting from one 2D c
+ 
+ 
+ Result 6 
+ 
+ 
+THE SEEDS OF DOOM
+BY ROBERT BANKS STEWART
+PART ONE
+6:00pm - 6:25pm
+[SCENE_BREAK]
+1, EXT: ANTARCTICA
+(The wind blows and the snow falls in the Antarctic region. Icebergs bob up and down within the rough ocean. In blizzard-like conditions, a man with heavy-weather clothing is kneeling in the snow by a wall, digging with a small pickaxe. Another man joins him, wearing similar clothes. He kneels and communicates with his companion, necessarily shouting because of the howling wind. The two men are Charles Winlett, and Derek Moberley, workers on an Antarctic research station.)
+MOBERLEY: Come on Charles, we've got enough samples, surely!
+WINLETT: This isn't ice - this is something else. Have a look.
+(He reaches down and extracts a small round object, frozen with ice and snow, but unrecognizable to both men.)
+MOBERLEY: What is it?
+WINLETT: Don't know! Let's get it back to camp.
+(They both stand up ready to leave.)
+[SCENE_BREAK]
+2, INT: RESEARCH STATION - LABORATORY
+(After an exterior shot of the research station, the round object is being examined on a table by the third member of the research team, John Stevenson. He scrapes away the excess ice to reveal a solid, rough, dark green pod or egg. Moberley and Winlett enter.)
+MOBERLEY: Animal, vegetable, or mineral?
+STEVENSON: Vegetable.
+WINLETT: Yes, that's what we thought.
+(Stevenson holds up the pod on a tray in front of them.)
+STEVENSON: The cutaneous creasing is unmistakable. When it's properly thawed out I can...confirm it with a cytology test.
+(Winlett is prodding the pod with a scalpel.)
+WINLETT: The skin looks as hard as iron.
+STEVENSON: Yes, it is a bit of a cannonball. How deep in the permafrost was it?
+WINLETT: About the er... 9th layer.
+MOBERLEY: And that means it's been there for ooh...20 thousand years? What do you make of it, John?
+STEVENSON: Nothing at all yet.
+MOBERLEY (joking): Oh, and I thought you were meant to be a botanist.
+STEVENSON: I've not seen anything remotely like it.
+WINLETT: It looks tropical to me, like a gourd.
+MOBERLEY: Oh rubbish Charles. If it's from the late Pleistocene period, it can't be tropical. It's a few million years since this part of Antarctica was rainforest.
+WINLETT: Oh that's the accepted theory. Discoveries like this have destroyed accepted theories before now. Isn't that right, John?
+(Stevenson is far less casual about the situation than the others. Without even listening to Winlett, he hesitantly touches the pod a few times with his finger. Winlett tries to get his
+ 
+ 
+ Result 7 
+ 
+ 
+Mae: Previously on Mars.
+Hana Seung: When you believe in a goal the way we believed in Mars, conviction alone will sustain you through almost any test.
+Leslie Richardson: Robert! If you find evidence of a second genesis.
+Marta Kamen: Evolution can begin again.
+Ed Grann: I've got faith.
+Paul Richardson: You know, I used to stand in the doorway of the farmhouse where I grew up looking at all of the crops, thinking about all the people they'd feed.
+Joon Seung: If you push too hard too fast, something's gonna break.
+Ed Grann: If they fail, everyone's out.
+Hana Seung: But faith doesn't guarantee success.
+Paul Richardson: Without plants we're nothing.
+Hana Seung: The real test is what happens when you fail.
+♪ [THEME MUSIC PLAYS] ♪
+[SCENE_BREAK]
+Leslie Richardson: Richardson, Leslie. Phase 2, personal entry.
+[HEAVY BREATHING]
+Robert Foucault: Damn tragedy. Oh God.
+Hana Seung: The entire west section is destroyed.
+[SCENE_BREAK]
+Leslie Richardson: Paul was always late. He would get so caught up in his work that he would just lose time, completely forget about it. And then he would show up hours later, filthy, like a kid that had been playing out in the mud all day. And always with that look on his face, that look as if he knew that he was in trouble. But it was all worth it. There was this one night I remember, It was while we were living out in South America, he was still in the forest collecting samples. He was late, as usual. But somehow it was different. Morning came. Another day went by. Finally I could hear his footsteps approaching. So, I rushed out to meet him. And all of the sudden all of that fear and worry that I'd felt turned into anger, rage. I couldn't believe how selfish he'd been. And then he appeared.
+Javier Delgado: Victor. There he is.
+Leslie Richardson: Covered from top to bottom in mud. With that look on his face... that look. And all I could say was, "I love you."
+Paul Richardson: Without plants we're nothing.
+Javier Delgado: We are not nothing, my friend.
+[SCENE_BREAK]
+Hana Seung: We'd lost seven of our own. The lab and the greenhouse were destroyed. Olympus Town was on complete lock down until the nations of the IMSF decided on the fate of our mission. Was Mars going to be a giant leap forward, or just a passing novelty. It wasn't the first time humankind had faced this question.
+Ann Druyan: We accomplished the impossible by stepping on the Moon. This was, the first hop. And there would be a skip, and a jump afterwards. And we'd keep going 
+ 
+ 
+ Result 8 
+ 
+ 
+The example executes in the `ContT () IO` monad, the Monad allowing continuations that result in `()` and some lifted `IO`.
+
+ 
+```
+type ExM a = ContT () IO a 
+```
+ `ContT` can be an incredibly confusing monad to work in, but I've found that Haskell's equational reasoning is a powerful tool for disentangling it. The remainder of this answer examines the original example in several steps, each powered by syntactic transforms and pure renamings.
+
+ So, let's first examine the type of the `callCC` part—it's ultimately the heart of this entire piece of code. That chunk is responsible for generating a strange kind of tuple as its monadic value.
+
+ 
+```
+type ContAndPrev = (Int -> ExM (), Int) getContAndPrev :: ExM ContAndPrev getContAndPrev = callCC $ \k -> let f x = k (f, x) in return (f, 0) 
+```
+ This can be made a little bit more familiar by sectioning it with `(>>=)`, which is exactly how it would be used in a real context—any `do`-block desugaring will create the `(>>=)` for us eventually.
+
+ 
+```
+withContAndPrev :: (ContAndPrev -> ExM ()) -> ExM () withContAndPrev go = getContAndPrev >>= go 
+```
+ and finally we can examine that it actually looks like in the call site. To be more clear, I'll desugar the original example a little bit
+
+ 
+```
+flip runContT return $ do lift (putStrLn "alpha") withContAndPrev $ \(k, num) -> do lift $ putStrLn "beta" lift $ putStrLn "gamma" if num < 5 then k (num + 1) >> return () else lift $ print num 
+```
+ Notice that this is a purely syntactic transformation. The code is identical to the original example, but it highlights the existence of this indented block under `withContAndPrev`. This is the secret to understanding Haskell `callCC`---`withContAndPrev` is given access to the entire "rest of the `do` block" which it gets to choose how to use.
+
+ Let's ignore the actual implementation of `withContAndPrev` and just see if we can create the behavior we saw in running the example. It's fairly tricky, but what we want to do is pass into the block the ability to call itself. Haskell being as lazy and recursive as it is, we can write that directly.
+
+ 
+```
+withContAndPrev' :: (ContAndPrev -> ExM ()) -> ExM () withContAndPrev' = go 0 where go n next = next (\i -> go i next, n) 
+```
+ This is still something of a recursive headache, but it might be easier to see how it works. We're taking the remainder of the do block and creating a looping construct called `go`. We pass into the block a function that calls our looper, `go`, with a new int
+ 
+ 
+ Result 9 
+ 
+ 
+You cannot merely transpose from longitude/latitude to x/y like that because the world isn't flat. Have you look at this post? [Converting longitude/latitude to X/Y coordinate](https://stackoverflow.com/questions/5983099/converting-longitude-latitude-to-x-y-coordinate)
+
+ **UPDATE - 1/18/13**
+
+ I decided to give this a stab, and here's how I do it:-
+
+ 
+```
+public class MapService { // CHANGE THIS: the output path of the image to be created private static final String IMAGE_FILE_PATH = "/some/user/path/map.png"; // CHANGE THIS: image width in pixel private static final int IMAGE_WIDTH_IN_PX = 300; // CHANGE THIS: image height in pixel private static final int IMAGE_HEIGHT_IN_PX = 500; // CHANGE THIS: minimum padding in pixel private static final int MINIMUM_IMAGE_PADDING_IN_PX = 50; // formula for quarter PI private final static double QUARTERPI = Math.PI / 4.0; // some service that provides the county boundaries data in longitude and latitude private CountyService countyService; public void run() throws Exception { // configuring the buffered image and graphics to draw the map BufferedImage bufferedImage = new BufferedImage(IMAGE_WIDTH_IN_PX, IMAGE_HEIGHT_IN_PX, BufferedImage.TYPE_INT_RGB); Graphics2D g = bufferedImage.createGraphics(); Map<RenderingHints.Key, Object> map = new HashMap<RenderingHints.Key, Object>(); map.put(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC); map.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY); map.put(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON); RenderingHints renderHints = new RenderingHints(map); g.setRenderingHints(renderHints); // min and max coordinates, used in the computation below Point2D.Double minXY = new Point2D.Double(-1, -1); Point2D.Double maxXY = new Point2D.Double(-1, -1); // a list of counties where each county contains a list of coordinates that form the county boundary Collection<Collection<Point2D.Double>> countyBoundaries = new ArrayList<Collection<Point2D.Double>>(); // for every county, convert the longitude/latitude to X/Y using Mercator projection formula for (County county : countyService.getAllCounties()) { Collection<Point2D.Double> lonLat = new ArrayList<Point2D.Double>(); for (CountyBoundary countyBoundary : county.getCountyBoundaries()) { // convert to radian double longitude = countyBoundary.getLongitude() * Math.PI / 180; double latitude = countyBoundary.getLatitude() * Math.PI / 180; Point2D.Double xy = new Point2D.D
+ 
+ 
+ Result 10 
+ 
+ 
+This can be seen by induction.
+
+ Suppose, `xs == []`. Both expressions are true, since both yield `error`.
+
+ Suppose, `xs == [y]`
+
+ 
+```
+maximum([y]++map(x+)[y]) == -- by definition of map == maximum([y]++[x+y]) -- by definition of ++ == maximum([y,x+y]) -- by definition of maximum == foldr1 max [y,x+y] -- by definition of foldr1 == max y (foldr1 max [x+y]) -- by definition of foldr1 == max y (x+y) -- by definition of foldr1 and maximum [y] == max (maximum [y]) (x+maximum [y]) 
+```
+ Next, we will need a proof of commutativity of `maximum`: `maximum (xs++(y:ys)) == max y (maximum (xs++ys))` - you will notice this is needed, if you skip this proof and go straight to the proof of `maximum (y:ys ++ map(x+)(y:ys))` - one step there requires to move `(x+y)` from the middle of the list `ys++(x+y):map(x+)ys`.
+
+ Suppose, `xs==[]`:
+
+ 
+```
+maximum ([]++(y:ys)) == maximum (y:ys) -- by definition of foldr1 and maximum == max y (maximum ys) == max y (maximum ([]++ys)) 
+```
+ Suppose, `xs==x:xx`:
+
+ 
+```
+maximum(x:xx++(y:ys)) == maximum (x:(xx++(y:ys))) -- by definition of foldr1 and maximum == max x (maximum (xx++(y:ys))) -- by induction == max x (max y (maximum (xx++ys))) -- by commutativity of max, max a (max b c) == max b (max a c) == max y (max x (maximum (xx++ys))) -- by definition of foldr1 and maximum == max y (maximum (x:(xx++ys))) -- by definition of ++ == max y (maximum ((x:xx) ++ ys)) 
+```
+ Ok, now get back to proving the original statement. Now, suppose `xs == y:ys`
+
+ 
+```
+ maximum (y:ys ++ map(x+)(y:ys)) == -- by definition of map == maximum(y:ys ++ (x+y):map(x+)ys) -- by definition of foldr1 and maximum == max y (maximum(ys ++ (x+y):map(x+)ys) -- by commutativity of maximum == max y (max (x+y) (maximum (ys++map(x+)ys))) -- by induction, (maximum (ys++map(x+)ys)) == max (maximum ys) (x+maximum ys)) == max y (max (x+y) (max (maximum ys) (x+maximum ys))) -- by commutativity of max (ie max a (max b c) == max b (max a c)) == max y (max (maximum ys) (max (x+y) (x+maximum ys))) -- by associativity of max (is max a (max b c) == max (max a b) c) == max (max y (maximum ys)) (max (x+y) (x+maximum ys))) -- by definition of max, max (x+y) (x+z) == x+(max y z) == max (max y (maximum ys)) (x + max y (maximum ys))) -- by definition of foldr1 and maximum == max (maximum (y:ys)) (x + maximum (y:ys)) 
+```
+ 
+
+---
+
+ Since you asked also about induction and how to see a certain thing can be proven by induction, here's some more.
+
+ You can see some of the steps are "by definition
